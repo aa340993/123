@@ -139,9 +139,7 @@ body {
 .tab-content{display:none;animation:fadeIn 0.25s ease;}
 .tab-content.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.song-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;max-height:50vh;overflow-y:auto;padding-right:4px;}
-.song-list::-webkit-scrollbar{width:4px;}
-.song-list::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px;}
+.song-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;padding-right:4px;}
 .song-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:var(--card-bg);cursor:pointer;transition:all 0.25s;border:1px solid var(--border-color);}
 .song-item:hover{transform:translateX(3px);border-color:var(--accent);}
 .song-item.now-playing{background:linear-gradient(135deg,rgba(255,105,180,0.15),rgba(255,20,147,0.08));border-left:3px solid var(--accent);}
