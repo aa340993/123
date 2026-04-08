@@ -1,17 +1,137 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>皮卡直播</title>
-		<link rel="stylesheet" href="./style.css" />
-	</head>
-	<script type="text/javascript" src="./main.js"></script>
-	<body>
-		<div class="box">
-			<div class="showtime">
-				<p id="getTime">
-				</p>
-			</div>
-		</div>
-	</body>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音樂播放器</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background: #ffc0cb;
+  overflow-x: hidden;
+}
+
+body {
+  padding-bottom: 120px;
+}
+
+.main-container {
+  width: 100%;
+  min-height: 100vh;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="login-container" id="loginContainer">
+  <div class="login-box">
+    <h2>登入</h2>
+    <div class="input-group">
+      <label>帳號</label>
+      <input type="text" id="username">
+    </div>
+    <div class="input-group">
+      <label>密碼</label>
+      <input type="password" id="password">
+    </div>
+    <button id="loginBtn">登入</button>
+    <button id="guestBtn">訪客</button>
+    <div class="error-msg" id="errorMsg">帳號或密碼錯誤</div>
+  </div>
+</div>
+
+<div class="main-container" id="mainContainer">
+  <div class="toolbar">
+    <div class="theme-toggle">
+      <button class="theme-btn active" data-theme="pink">🌸</button>
+      <button class="theme-btn" data-theme="light">☀️</button>
+      <button class="theme-btn" data-theme="dark">🌙</button>
+    </div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜尋歌曲">
+    </div>
+    <button id="logoutBtn">登出</button>
+  </div>
+
+  <div class="app-header">
+    <h1>粉粉音樂盒</h1>
+    <p>共享歌單</p>
+  </div>
+
+  <div class="tab-container">
+    <button class="tab-btn active" data-tab="my-songs">我的歌</button>
+    <button class="tab-btn" data-tab="liked-songs">喜愛</button>
+    <button class="tab-btn" data-tab="history">記錄</button>
+    <button class="tab-btn" data-tab="guide">說明</button>
+    <button class="tab-btn" data-tab="settings-tab">設定</button>
+  </div>
+
+  <div class="tab-content active" id="my-songs">
+    <div class="upload-area" id="uploadArea">
+      <div>上傳MP3</div>
+      <input type="file" id="file-input" accept="audio/mp3" multiple>
+      <input type="file" id="cover-input" accept="image/*">
+    </div>
+    <div class="sync-status" id="syncStatus">同步雲端音樂</div>
+    <div class="song-list" id="mySongList"></div>
+  </div>
+
+  <div class="tab-content" id="liked-songs">
+    <div class="song-list" id="likedSongList"></div>
+  </div>
+
+  <div class="tab-content" id="history">
+    <div class="song-list" id="historyList"></div>
+  </div>
+
+  <div class="tab-content" id="guide">
+    <div class="info-card">
+      <h3>介紹</h3>
+      <p>這是雲端音樂盒</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="settings-tab">
+    <div class="info-card">
+      <h3>設定</h3>
+    </div>
+  </div>
+</div>
+
+<div class="player-bar">
+  <div class="progress-container">
+    <div class="progress-bar"></div>
+  </div>
+  <div class="player-cover">🎵</div>
+  <div class="player-info">
+    <div class="player-title">尚未播放</div>
+    <div class="player-artist">請選擇歌曲</div>
+  </div>
+  <div class="player-controls">
+    <button>⚙️</button>
+    <button>⏪</button>
+    <button class="play-pause">▶️</button>
+    <button>⏩</button>
+    <button>⏭️</button>
+  </div>
+</div>
+
+<audio id="audioPlayer">
+
+<script>
+// 你的原有 JS 邏輯不變
+</script>
+
+</body>
 </html>
