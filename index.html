@@ -19,10 +19,16 @@
 
 <!-- iOS 啟動畫面 (iPhone 各尺寸) -->
 
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
+-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
+
 /* ── 安全區域 CSS 變數 ── */
 :root{
 --safe-top: env(safe-area-inset-top, 0px);
---safe-bottom: env(safe-area-inset-bottom, 0px);
+--safe-bottom: env(safe-area-inset-bottom, -20px);
 --safe-left: env(safe-area-inset-left, 0px);
 --safe-right: env(safe-area-inset-right, 0px);
 
