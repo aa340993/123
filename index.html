@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <meta name="theme-color" content="#1a0b14">
-<title>🌷 粉粉音樂盒 · 本地優先雲端同步</title>
+<title>🌷 粉粉音樂盒 · 自動雲端同步</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
@@ -180,17 +180,17 @@ body {
 <div id="appScrollRoot" style="display:none;">
   <div class="main-container" id="mainContainer">
     <div class="toolbar"><div class="theme-toggle"><button class="theme-btn" data-theme="pink">🌸</button><button class="theme-btn" data-theme="light">☀️</button><button class="theme-btn" data-theme="dark">🌙</button></div><div class="search-box"><input type="text" id="searchInput" placeholder="🔍 搜尋歌曲..."></div><button class="logout-btn" id="logoutBtn">🚪 登出</button></div>
-    <div class="app-header"><h1>🌷 粉粉音樂盒</h1><p id="welcomeMsg">本地優先 · 雲端備份</p></div>
+    <div class="app-header"><h1>🌷 粉粉音樂盒</h1><p id="welcomeMsg">自動雲端同步 · 跨裝置聆聽</p></div>
     <div class="tab-container"><button class="tab-btn active" data-tab="my-songs">🎀 我的歌</button><button class="tab-btn" data-tab="liked-songs">💖 喜愛</button><button class="tab-btn" data-tab="history">📖 記錄</button><button class="tab-btn" data-tab="guide">📘 說明</button><button class="tab-btn" data-tab="settings-tab">⚙️ 設定</button></div>
     
     <div class="tab-content active" id="my-songs">
-      <div class="upload-area" id="uploadArea"><div class="upload-icon">🌷📤</div><div class="upload-text">點擊上傳 MP3 (上限 10MB)</div><div class="upload-sub">先存本地 + 自動雲端同步 · 可選封面</div><input type="file" id="file-input" accept="audio/mp3,audio/mpeg"><input type="file" id="cover-input" accept="image/jpeg,image/png,image/gif"></div>
-      <div class="sync-status" id="syncStatus">☁️ 點擊同步雲端</div>
+      <div class="upload-area" id="uploadArea"><div class="upload-icon">🌷📤</div><div class="upload-text">點擊上傳 MP3 (上限 10MB)</div><div class="upload-sub">自動儲存本地 + 同步雲端 · 可選封面</div><input type="file" id="file-input" accept="audio/mp3,audio/mpeg"><input type="file" id="cover-input" accept="image/jpeg,image/png,image/gif"></div>
+      <div class="sync-status" id="syncStatus">☁️ 點擊手動同步</div>
       <div class="song-list" id="mySongList"></div>
     </div>
     <div class="tab-content" id="liked-songs"><div class="song-list" id="likedSongList"></div></div>
     <div class="tab-content" id="history"><div class="song-list" id="historyList"></div></div>
-    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 本地優先+雲端同步</h3><p>上傳歌曲會先儲存至本機 IndexedDB (離線可用)，同時自動上傳至 Supabase 雲端，跨裝置同步。</p><p><strong>✨ PWA 模式自動播放下一首已修復</strong> - 歌曲結束後會自動繼續播放</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>📤 上傳限制</h3><ul><li>單一檔案上限 <strong>10MB</strong></li><li>支援 MP3 格式</li><li>可選 JPG/PNG 封面</li></ul></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒</li><li>▶️/⏸️ 播放/暫停</li><li>⏩ 快進15秒</li><li>⏭️ 下一首</li><li>⚙️ 音量/速度/模式/睡眠定時</li></ul></div></div>
+    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 自動雲端同步</h3><p>上傳歌曲會自動儲存至本地 IndexedDB，並立即上傳至 Supabase 雲端！<br>在不同裝置登入同一帳號，會自動下載所有歌曲。</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>📤 上傳限制</h3><ul><li>單一檔案上限 <strong>10MB</strong></li><li>支援 MP3 格式</li><li>可選 JPG/PNG 封面</li></ul></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒 / ⏩ 快進15秒</li><li>▶️/⏸️ 播放/暫停</li><li>⏭️ 下一首 (自動連續播放)</li><li>⚙️ 設定分頁調整音量/速度/模式</li></ul></div></div>
     <div class="tab-content" id="settings-tab"><div class="info-card"><h3>🎨 外觀</h3><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div><div class="info-card"><h3>✨ 特效</h3><div class="setting-row"><div><div class="setting-label">愛心點擊特效</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">自動播放下一首</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div></div><div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有資料(刪除本地)</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div></div></div>
   </div>
 </div>
@@ -302,53 +302,63 @@ function setSyncStatus(text, isSyncing = false) {
   else el.classList.remove('syncing');
 }
 
-async function syncToCloud(localSongs) {
-  if (isGuest) return;
-  setSyncStatus('☁️ 同步雲端中...', true);
+// 單首歌曲上傳到雲端
+async function uploadSongToCloud(song) {
+  if (isGuest) return false;
   try {
-    for (const song of localSongs) {
-      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${song.id}`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      const existing = await checkRes.json();
-      if (!existing.length) {
-        const blob = song.blob;
-        const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(blob); });
-        const coverB64 = song.coverData ? song.coverData.split(',')[1] : null;
-        await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: song.id, name: song.name, size: song.size, uploader: song.uploader, blob_data: b64, cover_data: coverB64, duration: song.duration || 0 })
-        });
-      }
-    }
-    setSyncStatus('✅ 雲端同步完成 · 點擊重新整理', false);
-  } catch(e) { console.warn(e); setSyncStatus('⚠️ 同步失敗 · 點擊重試', false); }
+    const blob = song.blob;
+    const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(blob); });
+    const coverB64 = song.coverData ? song.coverData.split(',')[1] : null;
+    await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: song.id, name: song.name, size: song.size, uploader: song.uploader, blob_data: b64, cover_data: coverB64, duration: song.duration || 0 })
+    });
+    return true;
+  } catch(e) {
+    console.error('雲端上傳失敗:', e);
+    return false;
+  }
 }
 
+// 從雲端拉取所有歌曲
 async function pullCloudToLocal() {
   if (isGuest) return;
   setSyncStatus('📥 下載雲端歌曲...', true);
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { 
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } 
+    });
+    if (!res.ok) throw new Error('雲端請求失敗');
     const cloudSongs = await res.json();
     let localSongs = await getLocalSongs();
-    let changed = false;
+    let addedCount = 0;
     for (const cs of cloudSongs) {
       const exists = localSongs.find(l => l.id === cs.id);
       if (!exists) {
         const blob = base64ToBlob(cs.blob_data);
         const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null;
-        const newSong = { id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader, blob: blob, url: URL.createObjectURL(blob), coverUrl, duration: cs.duration || 0, coverData: coverUrl };
+        const newSong = { 
+          id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader, 
+          blob: blob, url: URL.createObjectURL(blob), coverUrl, 
+          duration: cs.duration || 0, coverData: coverUrl 
+        };
         await saveSongToLocal(newSong);
-        changed = true;
+        addedCount++;
       }
     }
-    if (changed) {
+    if (addedCount > 0) {
       await loadLocalAndRender();
+      setSyncStatus(`✅ 新增 ${addedCount} 首雲端歌曲`, false);
+      setTimeout(() => updateLocalStorageDisplay(), 2000);
+    } else {
+      setSyncStatus('🌐 雲端已是最新', false);
+      setTimeout(() => updateLocalStorageDisplay(), 1500);
     }
-    setSyncStatus('🌐 雲端已合併 · 點擊重新同步', false);
-  } catch(e) { setSyncStatus('❌ 拉取失敗 · 點擊重試', false); }
+  } catch(e) { 
+    console.error(e);
+    setSyncStatus('❌ 雲端拉取失敗，檢查網路後點擊重試', false); 
+  }
 }
 
 function base64ToBlob(b64) {
@@ -370,66 +380,85 @@ async function loadLocalAndRender() {
   likedSongs = meta.liked || [];
   playHistory = meta.history || [];
   renderAll();
-  let total = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
-  setSyncStatus(`💾 本地 ${(total/1024/1024).toFixed(1)} MB · 點擊同步雲端`, false);
+  updateLocalStorageDisplay();
 }
 
+function updateLocalStorageDisplay() {
+  let total = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
+  setSyncStatus(`💾 本地 ${(total/1024/1024).toFixed(1)} MB / ${globalSongs.length} 首歌 · 點擊同步雲端`, false);
+}
+
+// 上傳新歌曲 (自動同步雲端)
 async function uploadNewSong(file, coverFile) {
   if (isGuest) { alert('訪客無法上傳'); return; }
   if (file.size > MAX_FILE_SIZE) { alert(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`); return; }
+  
   const id = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
   let coverData = null;
   if (coverFile) {
     const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(coverFile); });
     coverData = b64;
   }
-  const blob = file;
+  
   const newSong = {
     id: id,
     name: file.name,
     size: file.size,
     uploader: currentUser,
-    blob: blob,
+    blob: file,
     coverUrl: coverData,
     duration: 0,
     coverData: coverData
   };
+  
   setSyncStatus('📤 儲存本地中...', true);
   await saveSongToLocal(newSong);
   await loadLocalAndRender();
-  setSyncStatus('📤 上傳雲端中...', true);
-  const b64audio = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(blob); });
-  const coverB64 = coverData ? coverData.split(',')[1] : null;
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, name: file.name, size: file.size, uploader: currentUser, blob_data: b64audio, cover_data: coverB64, duration: 0 })
-    });
-    setSyncStatus('✅ 上傳成功！', false);
-    setTimeout(() => { let total = globalSongs.reduce((a,s)=>a+(s.size||0),0); setSyncStatus(`💾 本地 ${(total/1024/1024).toFixed(1)} MB · 點擊同步`, false); }, 2000);
-  } catch(e) { setSyncStatus('⚠️ 雲端上傳失敗，稍後可同步', false); }
+  
+  setSyncStatus('☁️ 上傳雲端中...', true);
+  const success = await uploadSongToCloud(newSong);
+  if (success) {
+    setSyncStatus('✅ 上傳成功！已同步至雲端', false);
+  } else {
+    setSyncStatus('⚠️ 雲端上傳失敗，稍後可點擊同步', false);
+  }
+  setTimeout(() => updateLocalStorageDisplay(), 2000);
 }
 
+// 刪除歌曲 (同步刪除雲端)
 async function deleteSong(id) {
   if (!confirm('刪除歌曲將同時刪除本地與雲端')) return;
+  setSyncStatus('🗑️ 刪除中...', true);
   await deleteSongFromLocal(id);
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { 
+      method: 'DELETE', 
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } 
+    });
   } catch(e) {}
   await loadLocalAndRender();
   if (globalSongs[currentSongIndex]?.id === id) { audio.pause(); currentSongIndex = -1; }
+  setSyncStatus('✅ 已刪除', false);
+  setTimeout(() => updateLocalStorageDisplay(), 1000);
 }
 
+// 編輯歌名 (同步更新雲端)
 async function editSongName(id, newName) {
   const song = globalSongs.find(s => s.id === id);
   if(!song) return;
   song.name = newName;
+  setSyncStatus('✏️ 更新中...', true);
   await saveSongToLocal({ ...song, blob: song.blob });
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName }) });
+    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { 
+      method: 'PATCH', 
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ name: newName }) 
+    });
   } catch(e) {}
   await loadLocalAndRender();
+  setSyncStatus('✅ 已更新', false);
+  setTimeout(() => updateLocalStorageDisplay(), 1000);
 }
 
 async function toggleLike(id) {
@@ -450,9 +479,8 @@ function playSong(index) {
   currentSongIndex = index;
   audio.src = s.url;
   audio.playbackRate = currentSpeed;
-  audio.volume = 0;
+  audio.volume = currentVolume;
   audio.play().catch(e=>console.log);
-  fadeIn();
   playPauseBtn.innerText = '⏸️';
   playerTitle.innerText = s.name;
   playerArtist.innerText = '🎀 ' + (s.uploader || '未知');
@@ -463,8 +491,6 @@ function playSong(index) {
   addToHistory(s);
   renderAll();
 }
-
-function fadeIn(dur=500) { if(!fadeEnabled) { audio.volume = currentVolume; return; } audio.volume = 0; let start = null; function step(ts) { if(!start) start = ts; let p = Math.min(1, (ts-start)/dur); audio.volume = p * currentVolume; if(p<1) requestAnimationFrame(step); } requestAnimationFrame(step); }
 
 function getCurrentList() {
   return (activeTab === 'liked-songs' && document.getElementById('liked-songs').classList.contains('active')) ? 
@@ -482,8 +508,6 @@ function playNext() {
     let newPos;
     do { newPos = Math.floor(Math.random() * list.length); } while (list.length > 1 && newPos === pos);
     nextIdx = newPos;
-  } else if (playMode === 'loop') {
-    nextIdx = (pos + 1) % list.length;
   } else {
     nextIdx = (pos + 1) % list.length;
   }
@@ -528,6 +552,7 @@ function renderHistory(){const el=document.getElementById('historyList'); el.inn
 function escapeHtml(str){ return (str||'').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 function fmtSize(b){ if(!b) return ''; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 
+// 事件綁定
 document.getElementById('uploadArea').onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = async (e) => {
   const file = e.target.files[0]; if(!file) return;
@@ -549,12 +574,12 @@ progressContainer.addEventListener('touchstart',e=>{isDragging=true; setProgress
 document.addEventListener('touchmove',e=>{if(isDragging) setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchend',()=>isDragging=false);
 audio.addEventListener('timeupdate',()=>{ if(!audio.duration||isDragging) return; progressBar.style.width=(audio.currentTime/audio.duration*100)+'%'; timeCurrent.innerText=fmtTime(audio.currentTime); timeTotal.innerText=fmtTime(audio.duration);});
-playPauseBtn.onclick = () => { if(!globalSongs.length){alert('無歌曲');return;} if(audio.paused){ if(!audio.src||currentSongIndex===-1) playSong(0); else{ audio.play(); fadeIn();} playPauseBtn.innerText='⏸️'; if(rotateEnabled) playerCover.classList.add('rotating'); } else { audio.pause(); playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }};
+playPauseBtn.onclick = () => { if(!globalSongs.length){alert('無歌曲');return;} if(audio.paused){ if(!audio.src||currentSongIndex===-1) playSong(0); else{ audio.play(); } playPauseBtn.innerText='⏸️'; if(rotateEnabled) playerCover.classList.add('rotating'); } else { audio.pause(); playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }};
 prev15Btn.onclick = () => audio.currentTime = Math.max(0, audio.currentTime-15);
 next15Btn.onclick = () => audio.currentTime = Math.min(audio.duration||0, audio.currentTime+15);
 nextTrackBtn.onclick = playNext;
 function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
-settingsBtn.onclick = () => { alert('快速設定：\n• 音量/速度/模式可在設定分頁調整\n• 睡眠定時: 設定分頁擴充功能'); };
+settingsBtn.onclick = () => { alert('⚙️ 播放設定可在下方「設定」分頁調整\n• 音量/速度/播放模式\n• 自動下一首開關\n• 睡眠定時等功能'); };
 
 document.querySelectorAll('.theme-opt').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
 document.getElementById('toggleHeart').onchange=e=>heartEnabled=e.target.checked;
@@ -564,9 +589,14 @@ function setTheme(theme){ document.body.classList.remove('light-mode','dark-mode
 let activeTab='my-songs';
 document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.onclick=()=>{ activeTab=btn.dataset.tab; document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); renderAll(); }; });
 document.getElementById('searchInput').oninput = e => { searchKeyword = e.target.value.toLowerCase(); renderSongs(); };
-async function initApp() { setTheme(localStorage.getItem('theme')||'pink'); await openDB(); await loadLocalAndRender(); await pullCloudToLocal(); }
+async function initApp() { 
+  setTheme(localStorage.getItem('theme')||'pink'); 
+  await openDB(); 
+  await loadLocalAndRender(); 
+  await pullCloudToLocal();  // 啟動時自動從雲端下載
+}
 const loginContainer=document.getElementById('loginContainer'), appScrollRoot=document.getElementById('appScrollRoot');
-function doLogin(username,guestMode){ currentUser=username; isGuest=guestMode; loginContainer.style.opacity='0'; setTimeout(()=>{ loginContainer.style.display='none'; appScrollRoot.style.display='block'; document.getElementById('mainContainer').style.display='block'; document.getElementById('welcomeMsg').innerHTML=guestMode?'🌷 訪客模式 · 僅瀏覽':'🎀 '+username; initApp(); },500); }
+function doLogin(username,guestMode){ currentUser=username; isGuest=guestMode; loginContainer.style.opacity='0'; setTimeout(()=>{ loginContainer.style.display='none'; appScrollRoot.style.display='block'; document.getElementById('mainContainer').style.display='block'; document.getElementById('welcomeMsg').innerHTML=guestMode?'🌷 訪客模式 · 僅瀏覽':'🎀 歡迎 '+username; initApp(); },500); }
 document.getElementById('loginBtn').onclick=()=>{ const u=document.getElementById('username').value.trim(), p=document.getElementById('password').value.trim(); if(VALID_USERS[u] && VALID_USERS[u]===p) doLogin(u,false); else document.getElementById('errorMsg').style.display='block'; };
 document.getElementById('guestBtn').onclick=()=>doLogin('訪客_'+Math.random().toString(36).substr(2,6),true);
 document.getElementById('logoutBtn').onclick=()=>{ localStorage.removeItem('savedLogin'); location.reload(); };
