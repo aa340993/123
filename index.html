@@ -15,17 +15,10 @@
 <meta name="theme-color" content="#1a0b14">
 <title>🌷 粉粉音樂盒 </title>
 
-<!-- PWA 桌面圖標 (各尺寸) -->
-
-<!-- iOS 啟動畫面 (iPhone 各尺寸) -->
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
 
-/* ── 安全區域 CSS 變數 ── */
 :root{
 --safe-top: env(safe-area-inset-top, 0px);
 --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -48,19 +41,16 @@ body.dark-mode{
 --accent:#ff4080;--accent-dark:#ff1493;--input-bg:rgba(255,255,255,0.05);--player-bg:rgba(10,5,15,0.95);
 }
 
-/* ── 全屏填滿 ── */
 html, body { margin:0; padding:0; background: var(--bg-gradient-start); }
 body {
   background: linear-gradient(145deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   position: fixed;
   top: 0; left: 0; right: 0;
-  /* height 由 JS 設定 */
   overflow: hidden;
   color: var(--text-primary);
   transition: background 0.3s;
 }
 
-/* ── 滾動容器放在 body 裡面 ── */
 #appScrollRoot {
   position: absolute;
   inset: 0;
@@ -68,9 +58,10 @@ body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+  /* 底部 padding 只加 safe-bottom（非 PWA 才生效，見下方 media query） */
+  padding-bottom: 0;
 }
 
 .heart{position:fixed;pointer-events:none;z-index:9999;animation:heartFly 1s ease forwards;}
@@ -78,11 +69,9 @@ body {
 @keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 .player-cover.rotating{animation:rotate 10s linear infinite;}
 
-/* ── 登入頁面：精確填滿視窗，不留任何空白 ── */
 .login-container{
   position:fixed;
   top:0; left:0; right:0;
-  /* height 由 JS 直接設定為 window.innerHeight，這是 Safari 唯一可靠方式 */
   background:linear-gradient(145deg,#1a0b14 0%,#2d1a24 100%);
   display:flex;justify-content:center;align-items:center;
   overflow:hidden;
@@ -102,14 +91,26 @@ body {
 .error-msg{color:#ff6b6b;text-align:center;margin-top:15px;font-size:13px;display:none;}
 
 /* ── 主容器 ── */
-.main-container{display:none;min-height:100%;padding:16px 16px 0;max-width:700px;margin:0 auto;}
+.main-container{
+  display:none;
+  min-height:100%;
+  padding:16px 16px 0;
+  max-width:700px;
+  margin:0 auto;
+  /* PWA 模式：底部只留播放器高度約 74px，不加 safe-bottom */
+  padding-bottom: 74px;
+}
 
-/* ── Toolbar: 自動偵測 iPhone，往下移避開 status bar ── */
-/* 因為 #appScrollRoot 已有 padding-top: safe-top，toolbar 不需要額外處理 */
+/* 非 PWA（一般瀏覽器）才加 safe-bottom */
+@media not all and (display-mode: standalone) {
+  .main-container {
+    padding-bottom: calc(90px + var(--safe-bottom));
+  }
+}
+
 .toolbar{
   display:flex;justify-content:space-between;align-items:center;
   margin-bottom:16px;gap:10px;flex-wrap:wrap;
-  /* 確保在小螢幕上不超出 */
   position: relative; z-index: 10;
 }
 .theme-toggle{background:var(--card-bg);border:1px solid var(--border-color);border-radius:40px;padding:6px 12px;display:flex;gap:6px;backdrop-filter:blur(4px);}
@@ -148,27 +149,27 @@ body {
 #file-input,#cover-input{display:none;}
 .sync-status{text-align:center;font-size:11px;padding:10px;color:var(--text-secondary);background:var(--card-bg);border-radius:60px;margin-bottom:16px;backdrop-filter:blur(4px);border:1px solid var(--border-color);cursor:pointer;}
 
-/* ── 底部播放器：正確貼底 + home indicator 留空 ── */
+/* ── 底部播放器 ── */
 .player-bar{
   position:fixed;
   bottom:0;left:0;width:100%;
   background:var(--player-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  padding:12px 16px;
-  /* 在 home indicator 機型上加底部間距 */
-  padding-bottom: calc(12px + var(--safe-bottom));
+  /* PWA 模式：不加 safe-bottom，只有正常 padding */
+  padding:12px 16px 12px;
   display:flex;align-items:center;gap:12px;
   z-index:999;
   border-top:1px solid var(--border-color);
-  /* 左右也要安全距離 */
   padding-left: calc(16px + var(--safe-left));
   padding-right: calc(16px + var(--safe-right));
 }
 
-/* 主內容底部 padding = 播放器實際高度 ≈ 78px + safe-bottom */
-.main-container {
-  padding-bottom: calc(90px + var(--safe-bottom));
+/* 非 PWA 才加 safe-bottom */
+@media not all and (display-mode: standalone) {
+  .player-bar {
+    padding-bottom: calc(12px + var(--safe-bottom));
+  }
 }
 
 .player-cover{width:48px;height:48px;border-radius:14px;object-fit:cover;background:linear-gradient(145deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
@@ -216,7 +217,6 @@ body {
 .close-settings{width:100%;padding:12px;border-radius:40px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;cursor:pointer;margin-top:16px;}
 .empty-state{text-align:center;padding:40px 16px;color:var(--text-secondary);opacity:0.6;font-size:13px;background:var(--card-bg);border-radius:28px;}
 
-/* ── iPhone 小螢幕調整：工具列按鈕縮小 ── */
 @media(max-width:380px){
   .toolbar{gap:6px;}
   .theme-btn{padding:4px 7px;font-size:14px;}
@@ -232,10 +232,8 @@ body {
   .song-cover-img{width:42px;height:42px;}
 }
 
-/* ── tab-content 不預留高度 ── */
 .tab-content { min-height: 0; }
 
-/* ── 防止 iOS 橡皮筋效果漏出背景底色 ── */
 #appScrollRoot::before,
 #appScrollRoot::after {
   content: '';
@@ -248,8 +246,6 @@ body {
 </head>
 <body>
 
-<!-- ── 登入頁面 ── -->
-
 <div class="login-container" id="loginContainer">
   <div class="login-box">
     <h2 class="login-title">🌷 粉粉音樂盒</h2>
@@ -260,8 +256,6 @@ body {
     <div class="error-msg" id="errorMsg">帳號或密碼錯誤</div>
   </div>
 </div>
-
-<!-- ── 主視窗滾動容器 ── -->
 
 <div id="appScrollRoot" style="display:none;">
   <div class="main-container" id="mainContainer">
@@ -318,7 +312,7 @@ body {
 
 <div class="tab-content" id="settings-tab">
   <div class="info-card"><h3>🎨 外觀主題</h3><div class="setting-row"><div><div class="setting-label">主題選擇</div><div class="setting-desc">切換粉色 / 亮色 / 暗色</div></div><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div></div>
-  
+
   <div class="info-card"><h3>✨ 特效與動畫</h3>
     <div class="setting-row"><div><div class="setting-label">愛心點擊特效</div><div class="setting-desc">點擊畫面出現愛心</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div>
     <div class="setting-row"><div><div class="setting-label">封面旋轉動畫</div><div class="setting-desc">播放時封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div>
@@ -340,8 +334,6 @@ body {
 
   </div><!-- /main-container -->
 </div><!-- /appScrollRoot -->
-
-<!-- ── 播放器底欄 ── -->
 
 <div class="player-bar">
   <div class="progress-container" id="progressContainer">
@@ -372,7 +364,6 @@ const isStandalone = window.navigator.standalone === true ||
   window.matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
-/* 非 standalone 的 iOS Safari，提示加入主畫面 */
 if (isIOS && !isStandalone) {
   const tip = document.createElement('div');
   tip.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(45,25,35,0.95);color:#ff99bb;font-size:12px;padding:10px 18px;border-radius:30px;border:1px solid rgba(255,105,180,0.4);z-index:9998;white-space:nowrap;backdrop-filter:blur(10px);';
@@ -491,6 +482,7 @@ async function loadCloud(){
 function playSong(index){
   if(index<0||index>=songList.length)return;
   const s=songList[index];currentSongIndex=index;
+  audio._nextTriggered=false;
   audio.src=s.url;audio.playbackRate=currentSpeed;audio.volume=0;
   audio.play().catch(()=>{});fadeIn();
   playPauseBtn.innerText='⏸️';
@@ -529,8 +521,31 @@ progressContainer.addEventListener('click',setProgress);
 progressContainer.addEventListener('touchstart',e=>{isDragging=true;setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchmove',e=>{if(isDragging)setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchend',()=>isDragging=false);
-audio.addEventListener('timeupdate',()=>{if(!audio.duration||isDragging)return;progressBar.style.width=(audio.currentTime/audio.duration*100)+'%';timeCurrent.innerText=fmtTime(audio.currentTime);timeTotal.innerText=fmtTime(audio.duration);});
-audio.addEventListener('ended',()=>{if(playMode==='loop'){audio.currentTime=0;audio.play();}else playNext();});
+
+/* ── timeupdate：進度更新 + PWA 自動下一首修正 ── */
+audio.addEventListener('timeupdate', function(){
+  if(!audio.duration || isDragging) return;
+  progressBar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+  timeCurrent.innerText = fmtTime(audio.currentTime);
+  timeTotal.innerText = fmtTime(audio.duration);
+  /* 提前 0.3 秒觸發，解決 iOS PWA 不觸發 ended 的問題 */
+  if(audio.duration - audio.currentTime < 0.3 && !audio._nextTriggered) {
+    audio._nextTriggered = true;
+    if(playMode === 'loop') { audio.currentTime = 0; audio.play(); }
+    else playNext();
+  }
+  if(audio.currentTime < audio.duration - 1) audio._nextTriggered = false;
+});
+
+/* ── ended：作為保險，避免重複觸發 ── */
+audio.addEventListener('ended', function(){
+  if(!audio._nextTriggered) {
+    if(playMode === 'loop') { audio.currentTime = 0; audio.play(); }
+    else playNext();
+  }
+  audio._nextTriggered = false;
+});
+
 playPauseBtn.onclick=()=>{if(!songList.length){alert('請先上傳歌曲');return;}if(audio.paused){if(!audio.src||currentSongIndex===-1)playSong(0);else{audio.play();fadeIn();}playPauseBtn.innerText='⏸️';if(rotateEnabled)playerCover.classList.add('rotating');}else{fadeOut(300,()=>{playPauseBtn.innerText='▶️';if(rotateEnabled)playerCover.classList.remove('rotating');});}};
 
 document.querySelectorAll('.tab-btn').forEach(btn=>{btn.onclick=()=>{activeTab=btn.dataset.tab;document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');renderAll();};});
@@ -597,10 +612,8 @@ async function initApp(){setTheme(localStorage.getItem('theme')||'pink');await l
     if(sr) sr.style.height = h + 'px';
   }
   fix();
-  // Safari resize 時（鍵盤收起、工具列出現/消失）重算
   window.addEventListener('resize', fix);
   window.addEventListener('orientationchange', function(){ setTimeout(fix, 300); });
-  // visualViewport 更準確
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', function(){
       var h = window.visualViewport.height;
