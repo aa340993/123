@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <meta name="theme-color" content="#1a0b14">
-<title>🌷 粉粉音樂盒 · 完整同步版</title>
+<title>🌷 粉粉音樂盒 · 完整雲端版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
@@ -170,6 +170,8 @@ body {
 .close-settings{width:100%;padding:12px;border-radius:40px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;cursor:pointer;margin-top:16px;}
 .empty-state{text-align:center;padding:40px 16px;color:var(--text-secondary);opacity:0.6;font-size:13px;background:var(--card-bg);border-radius:28px;}
 @media(max-width:380px){.toolbar{gap:6px;}.theme-btn{padding:4px 7px;font-size:14px;}}
+.toast-msg{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);color:#fff;padding:8px 20px;border-radius:40px;font-size:13px;z-index:10001;white-space:nowrap;pointer-events:none;animation:fadeOut 2s forwards;}
+@keyframes fadeOut{0%{opacity:1;}70%{opacity:1;}100%{opacity:0;visibility:hidden;}}
 </style>
 </head>
 <body>
@@ -198,14 +200,14 @@ body {
     </div>
     <div class="tab-content" id="liked-songs"><div class="song-list" id="likedSongList"></div></div>
     <div class="tab-content" id="history"><div class="song-list" id="historyList"></div></div>
-    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 完整功能說明</h3><p>✓ 上傳 MP3 (10MB 上限)<br>✓ 自動雲端同步<br>✓ 喜愛收藏清單<br>✓ 播放記錄<br>✓ 睡眠定時器<br>✓ 播放速度調整 (0.5x~2x)<br>✓ 音量獨立控制<br>✓ 播放模式(順序/隨機/循環)<br>✓ 主題切換(粉色/亮色/暗色)</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒 / ⏩ 快進15秒</li><li>▶️/⏸️ 播放/暫停 (支援淡入淡出)</li><li>⏭️ 下一首 (自動連續播放)</li><li>⚙️ 快速設定 (點擊播放器⚙️按鈕)</li></ul></div></div>
+    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 完整功能說明</h3><p>✓ 上傳 MP3 (10MB 上限)<br>✓ 自動雲端同步<br>✓ 喜愛收藏清單<br>✓ 播放記錄<br>✓ 睡眠定時器<br>✓ 播放速度調整 (0.5x~2x)<br>✓ 音量獨立控制<br>✓ 播放模式(順序/隨機/循環)<br>✓ 主題切換(粉色/亮色/暗色)<br>✓ 雙向同步：刪除歌曲後其他裝置同步時會自動移除</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒 / ⏩ 快進15秒</li><li>▶️/⏸️ 播放/暫停 (支援淡入淡出)</li><li>⏭️ 下一首 (自動連續播放)</li><li>⚙️ 快速設定 (點擊播放器⚙️按鈕)</li></ul></div></div>
     <div class="tab-content" id="settings-tab">
       <div class="info-card"><h3>🎨 外觀主題</h3><div class="setting-row"><div><div class="setting-label">主題選擇</div><div class="setting-desc">切換粉色 / 亮色 / 暗色</div></div><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div></div>
       <div class="info-card"><h3>✨ 特效與動畫</h3><div class="setting-row"><div><div class="setting-label">愛心點擊特效</div><div class="setting-desc">點擊畫面出現愛心</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">封面旋轉動畫</div><div class="setting-desc">播放時封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div></div>
       <div class="info-card"><h3>🎧 播放設定</h3><div class="setting-row"><div><div class="setting-label">自動播放下一首</div><div class="setting-desc">歌曲結束自動繼續</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">播放時淡入效果</div><div class="setting-desc">讓音樂更柔軟進場</div></div><label class="toggle-wrap"><input type="checkbox" id="fadeEnabled" checked><span class="toggle-slider"></span></label></div><div class="range-row"><label>🔊 預設音量 <span id="defaultVolDisplay">70</span>%</label><input type="range" id="defaultVolume" min="0" max="100" value="70" step="1"></div><div class="range-row"><label>⚡ 預設播放速度 <span id="defaultSpeedDisplay">1.0</span>x</label><div class="btn-group"><button class="opt-btn speed-preset" data-speed="0.5">0.5x</button><button class="opt-btn speed-preset" data-speed="0.75">0.75x</button><button class="opt-btn speed-preset" data-speed="1">1x</button><button class="opt-btn speed-preset" data-speed="1.25">1.25x</button><button class="opt-btn speed-preset" data-speed="1.5">1.5x</button><button class="opt-btn speed-preset" data-speed="2">2x</button></div></div></div>
       <div class="info-card"><h3>🔄 播放模式</h3><div class="setting-row"><div><div class="setting-label">預設播放模式</div><div class="setting-desc">順序 / 隨機 / 單曲循環</div></div><div class="btn-group"><button class="opt-btn mode-preset" data-mode="sequential">順序</button><button class="opt-btn mode-preset" data-mode="shuffle">隨機</button><button class="opt-btn mode-preset" data-mode="loop">循環</button></div></div></div>
       <div class="info-card"><h3>⏰ 睡眠定時</h3><div class="setting-row"><div><div class="setting-label">設定定時關閉音樂</div><div class="setting-desc" id="sleepTimerStatus">目前：關閉</div></div><div class="btn-group"><button class="opt-btn sleep-preset" data-time="0">關閉</button><button class="opt-btn sleep-preset" data-time="10">10分</button><button class="opt-btn sleep-preset" data-time="20">20分</button><button class="opt-btn sleep-preset" data-time="30">30分</button><button class="opt-btn sleep-preset" data-time="60">60分</button></div></div></div>
-      <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div></div>
+      <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div><div class="setting-row"><div><div class="setting-label">🔧 雲端診斷</div><div class="setting-desc">測試連線與資料表結構</div></div><button class="opt-btn" id="diagnoseBtn">執行診斷</button></div></div>
     </div>
   </div>
 </div>
@@ -214,11 +216,11 @@ body {
 <audio id="audioPlayer"></audio>
 
 <script>
-// 核心修復: 雲端主導同步 + 刪除時自動清理其他用戶本地孤立歌曲
+// ======================== 粉粉音樂盒 - 完整雲端雙向同步版 ========================
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const TOTAL_CLOUD_LIMIT = 1024 * 1024 * 1024;
-const SUPABASE_URL = "https://ghhpzkglrdjmpfntnntv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_uXo17Iv43dO1XSLdqfUjFw_3RYBww96";
+const SUPABASE_URL = "https://znluvebzyrdmsckkjkoa.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3fI_Hfr-aBSXQhE5zboBTw_Res3SVpf";
 const VALID_USERS = {'lin0525':'aa340993','ccy1103':'aa340993'};
 let currentUser = '', isGuest = false;
 let currentSongIndex = -1, searchKeyword = '';
@@ -232,29 +234,405 @@ const DB_VERSION = 1;
 const STORE_SONGS = 'songs';
 const STORE_META = 'userMeta';
 
-function openDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, DB_VERSION); req.onupgradeneeded = (e) => { const dbInst = e.target.result; if (!dbInst.objectStoreNames.contains(STORE_SONGS)) { const store = dbInst.createObjectStore(STORE_SONGS, { keyPath: 'id' }); store.createIndex('uploader', 'uploader', { unique: false }); } if (!dbInst.objectStoreNames.contains(STORE_META)) dbInst.createObjectStore(STORE_META, { keyPath: 'key' }); }; req.onsuccess = (e) => { db = e.target.result; resolve(db); }; req.onerror = (e) => reject(e); }); }
-async function getLocalSongs() { if (!db) await openDB(); return new Promise((resolve) => { const tx = db.transaction(STORE_SONGS, 'readonly'); const store = tx.objectStore(STORE_SONGS); const req = store.getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => resolve([]); }); }
-async function saveSongToLocal(song) { if (!db) await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_SONGS, 'readwrite'); const store = tx.objectStore(STORE_SONGS); const req = store.put(song); req.onsuccess = resolve; req.onerror = reject; }); }
-async function deleteSongFromLocal(id) { if (!db) await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_SONGS, 'readwrite'); const store = tx.objectStore(STORE_SONGS); const req = store.delete(id); req.onsuccess = resolve; req.onerror = reject; }); }
-async function getUserMeta() { if (!db) await openDB(); return new Promise((resolve) => { const tx = db.transaction(STORE_META, 'readonly'); const store = tx.objectStore(STORE_META); const req = store.get(currentUser); req.onsuccess = () => { const data = req.result ? req.result.data : { liked: [], history: [], settings: {} }; resolve(data); }; req.onerror = () => resolve({ liked: [], history: [], settings: {} }); }); }
-async function saveUserMeta(meta) { if (!db || isGuest) return; return new Promise((resolve) => { const tx = db.transaction(STORE_META, 'readwrite'); const store = tx.objectStore(STORE_META); store.put({ key: currentUser, data: meta }); tx.oncomplete = resolve; }); }
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function showToast(msg, isError=false) {
+  const toast = document.createElement('div');
+  toast.className = 'toast-msg';
+  toast.textContent = msg;
+  if(isError) toast.style.background = 'rgba(255,80,80,0.9)';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const dbInst = e.target.result;
+      if (!dbInst.objectStoreNames.contains(STORE_SONGS)) {
+        const store = dbInst.createObjectStore(STORE_SONGS, { keyPath: 'id' });
+        store.createIndex('uploader', 'uploader', { unique: false });
+      }
+      if (!dbInst.objectStoreNames.contains(STORE_META)) {
+        dbInst.createObjectStore(STORE_META, { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+    req.onerror = (e) => reject(e);
+  });
+}
+
+async function getLocalSongs() {
+  if (!db) await openDB();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE_SONGS, 'readonly');
+    const store = tx.objectStore(STORE_SONGS);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]);
+  });
+}
+
+async function saveSongToLocal(song) {
+  if (!db) await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_SONGS, 'readwrite');
+    const store = tx.objectStore(STORE_SONGS);
+    const req = store.put(song);
+    req.onsuccess = () => resolve();
+    req.onerror = (e) => reject(e);
+  });
+}
+
+async function deleteSongFromLocal(id) {
+  if (!db) await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_SONGS, 'readwrite');
+    const store = tx.objectStore(STORE_SONGS);
+    const req = store.delete(id);
+    req.onsuccess = resolve;
+    req.onerror = reject;
+  });
+}
+
+async function getUserMeta() {
+  if (!db) await openDB();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE_META, 'readonly');
+    const store = tx.objectStore(STORE_META);
+    const req = store.get(currentUser);
+    req.onsuccess = () => {
+      const data = req.result ? req.result.data : { liked: [], history: [], settings: {} };
+      resolve(data);
+    };
+    req.onerror = () => resolve({ liked: [], history: [], settings: {} });
+  });
+}
+
+async function saveUserMeta(meta) {
+  if (!db || isGuest) return;
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE_META, 'readwrite');
+    const store = tx.objectStore(STORE_META);
+    store.put({ key: currentUser, data: meta });
+    tx.oncomplete = resolve;
+  });
+}
+
 let globalSongs = [];
-function setSyncStatus(text, isSyncing = false) { const el = document.getElementById('syncStatus'); if (el) { el.innerText = text; if (isSyncing) el.classList.add('syncing'); else el.classList.remove('syncing'); } }
-async function getCloudUsedBytes() { if (isGuest) return 0; try { const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=size`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); if (!res.ok) throw new Error('查詢失敗'); const songs = await res.json(); return songs.reduce((sum, song) => sum + (song.size || 0), 0); } catch(e) { return -1; } }
-async function updateCloudStorageDisplay() { if (isGuest) { setSyncStatus('🌙 訪客模式 · 僅本地儲存', false); return; } const usedBytes = await getCloudUsedBytes(); if (usedBytes === -1) { setSyncStatus('☁️ 無法取得雲端容量 · 點擊重試', false); return; } const usedMB = (usedBytes / 1024 / 1024).toFixed(1); const percent = (usedBytes / TOTAL_CLOUD_LIMIT * 100).toFixed(1); const localTotal = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0); const localMB = (localTotal / 1024 / 1024).toFixed(1); setSyncStatus(`💾 本地 ${localMB}MB / ☁️ 雲端 ${usedMB}MB / 1024MB (${percent}%) · 點擊同步`, false); }
-function base64ToBlob(b64) { const bin = atob(b64); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr], {type: 'audio/mp3'}); }
-async function cleanMetaByValidIds(validSongIds) { const meta = await getUserMeta(); let changed = false; const newLiked = meta.liked.filter(id => validSongIds.has(id)); if (newLiked.length !== meta.liked.length) { meta.liked = newLiked; changed = true; } const newHistory = meta.history.filter(h => validSongIds.has(h.id)); if (newHistory.length !== meta.history.length) { meta.history = newHistory; changed = true; } if (changed) { await saveUserMeta({ liked: meta.liked, history: meta.history, settings: meta.settings }); likedSongs = meta.liked; playHistory = meta.history; } }
-async function pullCloudToLocal() { if (isGuest) return; setSyncStatus('🔄 完整同步中 (雲端為主)...', true); try { const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); if (!res.ok) throw new Error('雲端請求失敗'); const cloudSongs = await res.json(); const localSongs = await getLocalSongs(); const cloudIdSet = new Set(cloudSongs.map(cs => cs.id)); const toDelete = localSongs.filter(local => !cloudIdSet.has(local.id)); for (const del of toDelete) { if (globalSongs.find(g => g.id === del.id)?.url) URL.revokeObjectURL(globalSongs.find(g => g.id === del.id)?.url); await deleteSongFromLocal(del.id); } let addedCount = 0; for (const cs of cloudSongs) { const exists = localSongs.find(l => l.id === cs.id); if (!exists) { const blob = base64ToBlob(cs.blob_data); const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null; const newSong = { id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader, blob: blob, url: URL.createObjectURL(blob), coverUrl, duration: cs.duration || 0, coverData: coverUrl }; await saveSongToLocal(newSong); addedCount++; } } await cleanMetaByValidIds(cloudIdSet); await loadLocalAndRender(); if (addedCount > 0) setSyncStatus(`✅ 同步完成: 新增 ${addedCount} 首, 清理 ${toDelete.length} 首孤立歌曲`, false); else if (toDelete.length > 0) setSyncStatus(`🧹 同步完成: 清理本地 ${toDelete.length} 首已刪除歌曲`, false); else setSyncStatus(`✅ 同步完成，雲端歌曲 ${cloudSongs.length} 首`, false); await updateCloudStorageDisplay(); } catch(e) { console.error(e); setSyncStatus('❌ 同步失敗，檢查網路後點擊重試', false); } }
-async function loadLocalAndRender() { const songs = await getLocalSongs(); globalSongs.forEach(s => { if(s.url) URL.revokeObjectURL(s.url); }); globalSongs = songs.map(s => ({ ...s, url: URL.createObjectURL(s.blob), coverUrl: s.coverUrl || null })); const meta = await getUserMeta(); likedSongs = meta.liked || []; playHistory = meta.history || []; if (meta.settings) { if (meta.settings.volume !== undefined) currentVolume = meta.settings.volume; if (meta.settings.speed !== undefined) currentSpeed = meta.settings.speed; if (meta.settings.playMode !== undefined) playMode = meta.settings.playMode; if (meta.settings.autoNext !== undefined) autoNextEnabled = meta.settings.autoNext; if (meta.settings.fadeEnabled !== undefined) fadeEnabled = meta.settings.fadeEnabled; } audio.volume = currentVolume; audio.playbackRate = currentSpeed; document.getElementById('autoNext').checked = autoNextEnabled; document.getElementById('fadeEnabled').checked = fadeEnabled; document.getElementById('defaultVolume').value = Math.round(currentVolume * 100); document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100); document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); document.querySelectorAll('.speed-preset').forEach(btn => { if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active'); else btn.classList.remove('active'); }); document.querySelectorAll('.mode-preset').forEach(btn => { if (btn.dataset.mode === playMode) btn.classList.add('active'); else btn.classList.remove('active'); }); renderAll(); await updateCloudStorageDisplay(); }
-async function saveSettings() { if (isGuest) return; const meta = await getUserMeta(); meta.settings = { volume: currentVolume, speed: currentSpeed, playMode: playMode, autoNext: autoNextEnabled, fadeEnabled: fadeEnabled }; await saveUserMeta({ liked: likedSongs, history: playHistory, settings: meta.settings }); }
-async function uploadNewSong(file, coverFile) { if (isGuest) { alert('訪客無法上傳'); return; } if (file.size > MAX_FILE_SIZE) { alert(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`); return; } const usedBytes = await getCloudUsedBytes(); if (usedBytes !== -1 && (usedBytes + file.size) > TOTAL_CLOUD_LIMIT) { alert(`雲端空間不足！目前使用 ${(usedBytes/1024/1024).toFixed(1)}MB，上限 ${(TOTAL_CLOUD_LIMIT/1024/1024).toFixed(0)}MB`); return; } const id = Date.now() + '_' + Math.random().toString(36).substr(2, 8); let coverData = null; if (coverFile) { const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(coverFile); }); coverData = b64; } const newSong = { id, name: file.name, size: file.size, uploader: currentUser, blob: file, coverUrl: coverData, duration: 0, coverData: coverData }; setSyncStatus('📤 儲存本地中...', true); await saveSongToLocal(newSong); await loadLocalAndRender(); setSyncStatus('☁️ 上傳雲端中...', true); try { const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(file); }); const coverB64 = coverData ? coverData.split(',')[1] : null; await fetch(`${SUPABASE_URL}/rest/v1/songs`, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, name: file.name, size: file.size, uploader: currentUser, blob_data: b64, cover_data: coverB64, duration: 0 }) }); setSyncStatus('✅ 上傳成功！', false); } catch(e) { setSyncStatus('⚠️ 雲端上傳失敗，稍後可點擊同步', false); } await updateCloudStorageDisplay(); }
-async function deleteSong(id) { if (!confirm('刪除歌曲將同時刪除本地與雲端，其他用戶同步後也會移除')) return; setSyncStatus('🗑️ 刪除中...', true); if (globalSongs[currentSongIndex]?.id === id) { audio.pause(); currentSongIndex = -1; playPauseBtn.innerText = '▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); } const meta = await getUserMeta(); const newLiked = meta.liked.filter(lid => lid !== id); const newHistory = meta.history.filter(h => h.id !== id); await saveUserMeta({ liked: newLiked, history: newHistory, settings: meta.settings }); likedSongs = newLiked; playHistory = newHistory; await deleteSongFromLocal(id); try { await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); } catch(e) {} await loadLocalAndRender(); setSyncStatus('✅ 已刪除並同步雲端', false); await updateCloudStorageDisplay(); }
-async function editSongName(id, newName) { const song = globalSongs.find(s => s.id === id); if(!song) return; song.name = newName; await saveSongToLocal({ ...song, blob: song.blob }); try { await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName }) }); } catch(e) {} await loadLocalAndRender(); }
-async function toggleLike(id) { if(likedSongs.includes(id)) likedSongs = likedSongs.filter(x => x !== id); else likedSongs.push(id); await saveUserMeta({ liked: likedSongs, history: playHistory }); renderAll(); }
-function addToHistory(song) { playHistory = [{ id: song.id, name: song.name, time: new Date().toLocaleString('zh-TW') }, ...playHistory.filter(h => h.id !== song.id)].slice(0, 50); saveUserMeta({ liked: likedSongs, history: playHistory }); }
+
+function setSyncStatus(text, isSyncing = false) {
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.innerText = text;
+    if (isSyncing) el.classList.add('syncing');
+    else el.classList.remove('syncing');
+  }
+}
+
+async function getCloudUsedBytes() {
+  if (isGuest) return 0;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=size`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) throw new Error('查詢失敗');
+    const songs = await res.json();
+    return songs.reduce((sum, song) => sum + (song.size || 0), 0);
+  } catch(e) { return -1; }
+}
+
+async function updateCloudStorageDisplay() {
+  if (isGuest) { setSyncStatus('🌙 訪客模式 · 僅本地儲存', false); return; }
+  const usedBytes = await getCloudUsedBytes();
+  if (usedBytes === -1) { setSyncStatus('☁️ 無法取得雲端容量 · 點擊重試', false); return; }
+  const usedMB = (usedBytes / 1024 / 1024).toFixed(1);
+  const percent = (usedBytes / TOTAL_CLOUD_LIMIT * 100).toFixed(1);
+  const localTotal = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
+  const localMB = (localTotal / 1024 / 1024).toFixed(1);
+  setSyncStatus(`💾 本地 ${localMB}MB / ☁️ 雲端 ${usedMB}MB / 1024MB (${percent}%) · 點擊同步`, false);
+}
+
+function base64ToBlob(b64, mime='audio/mp3') {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr], {type: mime});
+}
+
+// 核心：雙向同步（下載新歌 + 刪除雲端已不存在的本地歌曲）
+async function pullCloudToLocal() {
+  if (isGuest) return;
+  setSyncStatus('🔄 同步中 (下載新歌 + 清理已刪除歌曲)...', true);
+  try {
+    // 1. 獲取雲端所有歌曲
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) throw new Error('雲端請求失敗');
+    const cloudSongs = await res.json();
+    const cloudIds = new Set(cloudSongs.map(cs => cs.id));
+    
+    // 2. 獲取本地歌曲
+    const localSongs = await getLocalSongs();
+    let addedCount = 0;
+    let deletedCount = 0;
+    
+    // 3. 下載雲端新增的歌曲
+    for (const cs of cloudSongs) {
+      const exists = localSongs.find(l => l.id === cs.id);
+      if (!exists) {
+        const blob = base64ToBlob(cs.blob_data);
+        const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null;
+        const newSong = {
+          id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader,
+          blob: blob, url: URL.createObjectURL(blob), coverUrl,
+          duration: cs.duration || 0, coverData: coverUrl
+        };
+        await saveSongToLocal(newSong);
+        addedCount++;
+      }
+    }
+    
+    // 4. 刪除本地中雲端已不存在的歌曲（僅限目前使用者上傳的，避免誤刪他人歌曲）
+    const toDelete = localSongs.filter(l => !cloudIds.has(l.id) && l.uploader === currentUser);
+    for (const song of toDelete) {
+      // 如果這首歌正在播放，先停止
+      if (globalSongs[currentSongIndex]?.id === song.id) {
+        audio.pause();
+        currentSongIndex = -1;
+        playPauseBtn.innerText = '▶️';
+        if(rotateEnabled) playerCover.classList.remove('rotating');
+      }
+      await deleteSongFromLocal(song.id);
+      deletedCount++;
+    }
+    
+    // 5. 同步更新喜愛與歷史記錄（移除已刪除歌曲的 ID）
+    const meta = await getUserMeta();
+    let updatedLiked = meta.liked.filter(id => cloudIds.has(id));
+    let updatedHistory = meta.history.filter(h => cloudIds.has(h.id));
+    if (updatedLiked.length !== meta.liked.length || updatedHistory.length !== meta.history.length) {
+      await saveUserMeta({ liked: updatedLiked, history: updatedHistory, settings: meta.settings });
+      likedSongs = updatedLiked;
+      playHistory = updatedHistory;
+    }
+    
+    // 6. 重新載入 UI
+    if (addedCount > 0 || deletedCount > 0) {
+      await loadLocalAndRender();
+    }
+    
+    let msg = `✅ 同步完成`;
+    if (addedCount > 0) msg += `，新增 ${addedCount} 首`;
+    if (deletedCount > 0) msg += `，清理 ${deletedCount} 首已刪除歌曲`;
+    setSyncStatus(msg, false);
+    if (deletedCount > 0) showToast(`已從本地移除 ${deletedCount} 首雲端已刪除的歌曲`);
+    await updateCloudStorageDisplay();
+  } catch(e) {
+    console.error(e);
+    setSyncStatus('❌ 同步失敗，檢查網路後點擊重試', false);
+  }
+}
+
+async function loadLocalAndRender() {
+  const songs = await getLocalSongs();
+  globalSongs.forEach(s => { if(s.url) URL.revokeObjectURL(s.url); });
+  globalSongs = songs.map(s => ({
+    ...s,
+    url: URL.createObjectURL(s.blob),
+    coverUrl: s.coverUrl || null
+  }));
+  const meta = await getUserMeta();
+  likedSongs = meta.liked || [];
+  playHistory = meta.history || [];
+  if (meta.settings) {
+    if (meta.settings.volume !== undefined) currentVolume = meta.settings.volume;
+    if (meta.settings.speed !== undefined) currentSpeed = meta.settings.speed;
+    if (meta.settings.playMode !== undefined) playMode = meta.settings.playMode;
+    if (meta.settings.autoNext !== undefined) autoNextEnabled = meta.settings.autoNext;
+    if (meta.settings.fadeEnabled !== undefined) fadeEnabled = meta.settings.fadeEnabled;
+  }
+  audio.volume = currentVolume;
+  audio.playbackRate = currentSpeed;
+  document.getElementById('autoNext').checked = autoNextEnabled;
+  document.getElementById('fadeEnabled').checked = fadeEnabled;
+  document.getElementById('defaultVolume').value = Math.round(currentVolume * 100);
+  document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100);
+  document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
+  document.querySelectorAll('.speed-preset').forEach(btn => {
+    if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  document.querySelectorAll('.mode-preset').forEach(btn => {
+    if (btn.dataset.mode === playMode) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  renderAll();
+  await updateCloudStorageDisplay();
+}
+
+async function saveSettings() {
+  if (isGuest) return;
+  const meta = await getUserMeta();
+  meta.settings = { volume: currentVolume, speed: currentSpeed, playMode, autoNext: autoNextEnabled, fadeEnabled };
+  await saveUserMeta({ liked: likedSongs, history: playHistory, settings: meta.settings });
+}
+
+async function uploadNewSong(file, coverFile) {
+  if (isGuest) { showToast('訪客無法上傳', true); return; }
+  if (file.size > MAX_FILE_SIZE) { showToast(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`, true); return; }
+  const usedBytes = await getCloudUsedBytes();
+  if (usedBytes !== -1 && (usedBytes + file.size) > TOTAL_CLOUD_LIMIT) {
+    showToast(`雲端空間不足！目前使用 ${(usedBytes/1024/1024).toFixed(1)}MB，上限 ${(TOTAL_CLOUD_LIMIT/1024/1024).toFixed(0)}MB`, true);
+    return;
+  }
+  const id = generateUUID();
+  let coverData = null;
+  if (coverFile) {
+    coverData = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(coverFile); });
+  }
+  const newSong = {
+    id, name: file.name, size: file.size, uploader: currentUser,
+    blob: file, coverUrl: coverData, duration: 0, coverData: coverData
+  };
+  setSyncStatus('📤 儲存本地中...', true);
+  try {
+    await saveSongToLocal(newSong);
+    await loadLocalAndRender();
+    setSyncStatus('✅ 本地儲存成功，正在上傳雲端...', false);
+    showToast(`「${file.name}」已儲存至本地`);
+  } catch(e) {
+    setSyncStatus('❌ 本地儲存失敗', false);
+    showToast('本地儲存失敗：' + e.message, true);
+    return;
+  }
+  setSyncStatus('☁️ 上傳雲端中...', true);
+  try {
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onloadend = () => res(r.result.split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+    const coverB64 = coverData ? coverData.split(',')[1] : null;
+    const payload = {
+      id: id,
+      name: file.name,
+      size: file.size,
+      uploader: currentUser,
+      blob_data: b64,
+      cover_data: coverB64,
+      duration: 0
+    };
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+    }
+    setSyncStatus('✅ 雲端上傳成功！', false);
+    showToast('已同步至雲端');
+  } catch(e) {
+    console.error('雲端上傳錯誤:', e);
+    setSyncStatus(`⚠️ 雲端上傳失敗: ${e.message.substring(0, 80)}`, false);
+    showToast('雲端上傳失敗，稍後可點擊「同步」重試', true);
+  }
+  await updateCloudStorageDisplay();
+}
+
+async function deleteSong(id) {
+  if (!confirm('刪除歌曲將同時刪除本地與雲端，其他裝置同步後也會移除')) return;
+  setSyncStatus('🗑️ 刪除中...', true);
+  if (globalSongs[currentSongIndex]?.id === id) {
+    audio.pause();
+    currentSongIndex = -1;
+    playPauseBtn.innerText = '▶️';
+    if(rotateEnabled) playerCover.classList.remove('rotating');
+  }
+  const meta = await getUserMeta();
+  const newLiked = meta.liked.filter(lid => lid !== id);
+  const newHistory = meta.history.filter(h => h.id !== id);
+  await saveUserMeta({ liked: newLiked, history: newHistory, settings: meta.settings });
+  likedSongs = newLiked;
+  playHistory = newHistory;
+  await deleteSongFromLocal(id);
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+  } catch(e) {}
+  await loadLocalAndRender();
+  setSyncStatus('✅ 已刪除並同步雲端', false);
+  await updateCloudStorageDisplay();
+}
+
+async function editSongName(id, newName) {
+  const song = globalSongs.find(s => s.id === id);
+  if(!song) return;
+  song.name = newName;
+  await saveSongToLocal({ ...song, blob: song.blob });
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName })
+    });
+  } catch(e) {}
+  await loadLocalAndRender();
+}
+
+async function toggleLike(id) {
+  if(likedSongs.includes(id)) likedSongs = likedSongs.filter(x => x !== id);
+  else likedSongs.push(id);
+  await saveUserMeta({ liked: likedSongs, history: playHistory });
+  renderAll();
+}
+
+function addToHistory(song) {
+  playHistory = [{ id: song.id, name: song.name, time: new Date().toLocaleString('zh-TW') }, ...playHistory.filter(h => h.id !== song.id)].slice(0, 50);
+  saveUserMeta({ liked: likedSongs, history: playHistory });
+}
+
 function fadeIn(dur=500) { if(!fadeEnabled) { audio.volume = currentVolume; return; } audio.volume = 0; let start = null; function step(ts) { if(!start) start = ts; let p = Math.min(1, (ts-start)/dur); audio.volume = p * currentVolume; if(p<1) requestAnimationFrame(step); } requestAnimationFrame(step); }
 function fadeOut(dur, cb) { if(!fadeEnabled) { audio.pause(); if(cb) cb(); return; } let start=null; function step(ts) { if(!start) start=ts; let p=Math.max(0,1-(ts-start)/dur); audio.volume = p*currentVolume; if(p>0) requestAnimationFrame(step); else { audio.pause(); if(cb) cb(); } } requestAnimationFrame(step); }
-function playSong(index) { if(index < 0 || index >= globalSongs.length) return; const s = globalSongs[index]; currentSongIndex = index; audio.src = s.url; audio.playbackRate = currentSpeed; audio.volume = 0; audio.play().catch(e=>console.log('播放錯誤:', e)); fadeIn(); playPauseBtn.innerText = '⏸️'; playerTitle.innerText = s.name; playerArtist.innerText = '🎀 ' + (s.uploader || '未知'); if(s.coverUrl) { playerCover.src = s.coverUrl; playerCover.style.display = 'block'; playerCoverIcon.style.display = 'none'; } else { playerCover.style.display = 'none'; playerCoverIcon.style.display = 'flex'; } if(rotateEnabled && !audio.paused) playerCover.classList.add('rotating'); else playerCover.classList.remove('rotating'); addToHistory(s); renderAll(); }
+function playSong(index) {
+  if(index < 0 || index >= globalSongs.length) return;
+  const s = globalSongs[index];
+  currentSongIndex = index;
+  audio.src = s.url;
+  audio.playbackRate = currentSpeed;
+  audio.volume = 0;
+  audio.play().catch(e=>console.log('播放錯誤:', e));
+  fadeIn();
+  playPauseBtn.innerText = '⏸️';
+  playerTitle.innerText = s.name;
+  playerArtist.innerText = '🎀 ' + (s.uploader || '未知');
+  if(s.coverUrl) { playerCover.src = s.coverUrl; playerCover.style.display = 'block'; playerCoverIcon.style.display = 'none'; }
+  else { playerCover.style.display = 'none'; playerCoverIcon.style.display = 'flex'; }
+  if(rotateEnabled && !audio.paused) playerCover.classList.add('rotating');
+  else playerCover.classList.remove('rotating');
+  addToHistory(s);
+  renderAll();
+}
 function getCurrentList() { return (activeTab === 'liked-songs' && document.getElementById('liked-songs').classList.contains('active')) ? globalSongs.filter(s => likedSongs.includes(s.id)) : globalSongs; }
 function playNext() { if (!autoNextEnabled) return; const list = getCurrentList(); if (!list.length) return; const cid = globalSongs[currentSongIndex]?.id; const pos = list.findIndex(s => s.id === cid); let nextIdx; if (playMode === 'shuffle') { let newPos; do { newPos = Math.floor(Math.random() * list.length); } while (list.length > 1 && newPos === pos); nextIdx = newPos; } else if (playMode === 'loop') { nextIdx = pos; } else { nextIdx = (pos + 1) % list.length; } const targetId = list[nextIdx]?.id; const origIdx = globalSongs.findIndex(s => s.id === targetId); if (origIdx !== -1 && (playMode !== 'loop' || origIdx !== currentSongIndex)) playSong(origIdx); else if (playMode === 'loop' && origIdx === currentSongIndex) { audio.currentTime = 0; audio.play(); } }
 audio.addEventListener('ended', () => { if (playMode === 'loop') { audio.currentTime = 0; audio.play().catch(e=>console.log); } else { playNext(); } });
@@ -266,12 +644,39 @@ function renderHistory(){ const el=document.getElementById('historyList'); if(!e
 function escapeHtml(str){ return (str||'').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 function fmtSize(b){ if(!b) return ''; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
+
+async function runDiagnostics() {
+  showToast('🔍 開始診斷，請稍候...');
+  try {
+    const testRes = await fetch(`${SUPABASE_URL}/rest/v1/songs?limit=1`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!testRes.ok) throw new Error(`HTTP ${testRes.status}: ${await testRes.text()}`);
+    const data = await testRes.json();
+    let msg = `✅ 連線成功，目前雲端歌曲數：${data.length}`;
+    if (data.length > 0) {
+      const sample = data[0];
+      msg += `\n範例欄位：${Object.keys(sample).join(', ')}`;
+    }
+    alert(msg);
+  } catch(e) {
+    alert(`❌ 診斷失敗：${e.message}\n請確認 Supabase URL 與 Key 正確，且資料表 "songs" 存在。`);
+  }
+}
+
 document.getElementById('uploadArea').onclick = () => document.getElementById('file-input').click();
-document.getElementById('file-input').onchange = async (e) => { const file = e.target.files[0]; if(!file) return; const coverFile = document.getElementById('cover-input').files[0]; await uploadNewSong(file, coverFile); e.target.value = ''; document.getElementById('cover-input').value = ''; };
+document.getElementById('file-input').onchange = async (e) => {
+  const file = e.target.files[0]; if(!file) return;
+  const coverFile = document.getElementById('cover-input').files[0];
+  await uploadNewSong(file, coverFile);
+  e.target.value = ''; document.getElementById('cover-input').value = '';
+};
 document.getElementById('syncStatus').onclick = async () => { await pullCloudToLocal(); };
 document.getElementById('clearHistoryBtn').onclick = async () => { if(confirm('清除記錄')){ playHistory=[]; await saveUserMeta({liked:likedSongs, history:[]}); renderHistory(); }};
 document.getElementById('clearLikedBtn').onclick = async () => { if(confirm('清除喜愛')){ likedSongs=[]; await saveUserMeta({liked:[], history:playHistory}); renderAll(); }};
 document.getElementById('resetAllBtn').onclick = async () => { if(confirm('刪除所有本地歌曲與資料？不可復原')){ indexedDB.deleteDatabase(DB_NAME); localStorage.clear(); location.reload(); }};
+document.getElementById('diagnoseBtn').onclick = runDiagnostics;
+
 const progressContainer = document.getElementById('progressContainer'), progressBar = document.getElementById('progressBar'), timeCurrent = document.getElementById('timeCurrent'), timeTotal = document.getElementById('timeTotal');
 let isDragging=false;
 function setProgress(e){ const rect=progressContainer.getBoundingClientRect(); let x=e.clientX; if(e.touches) x=e.touches[0].clientX; const p=Math.max(0,Math.min(1,(x-rect.left)/rect.width)); progressBar.style.width=p*100+'%'; if(audio.duration) audio.currentTime=p*audio.duration; }
