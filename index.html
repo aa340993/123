@@ -348,7 +348,7 @@ body {
   <div class="player-controls">
     <button class="control-btn" id="settingsBtn">⚙️</button>
     <button class="control-btn" id="prev15Btn">⏪</button>
-    <button class="control-btn play-pause" id="playPauseBtn">▶️</button>
+    <button class="control-btn" id="playPauseBtn">▶️</button>
     <button class="control-btn" id="next15Btn">⏩</button>
     <button class="control-btn" id="nextTrackBtn">⏭️</button>
   </div>
@@ -445,9 +445,37 @@ function getCurrentList(){return activeTab==='liked-songs'?songList.filter(s=>li
 function getNextIndex(){const list=getCurrentList();if(!list.length)return-1;const cid=songList[currentSongIndex]&&songList[currentSongIndex].id;const pos=list.findIndex(s=>s.id===cid);if(playMode==='loop')return pos>=0?pos:0;if(playMode==='shuffle'){let ni;do{ni=Math.floor(Math.random()*list.length);}while(list.length>1&&ni===pos);return songList.findIndex(s=>s.id===list[ni].id);}return songList.findIndex(s=>s.id===list[(pos+1)%list.length].id);}
 function playNext(){if(!autoNextEnabled)return;const ni=getNextIndex();if(ni!==-1)playSong(ni);}
 
-function updateStorageDisplay(){const usedMB=(totalUsedBytes/1024/1024).toFixed(1);const freeMB=((TOTAL_CLOUD_LIMIT-totalUsedBytes)/1024/1024).toFixed(1);document.getElementById('syncStatus').innerText=`☁️ 已使用：${usedMB} MB / 剩餘：${freeMB} MB · 點擊同步`;}
+// 本地暂存队列
+function getLocalQueue() {
+  try {
+    return JSON.parse(localStorage.getItem(`localQueue_${currentUser}`) || '[]');
+  } catch (e) { return []; }
+}
+function saveLocalQueue(queue) {
+  localStorage.setItem(`localQueue_${currentUser}`, JSON.stringify(queue));
+}
+
+// 本地歌曲缓存
+function getLocalSongs() {
+  try {
+    return JSON.parse(localStorage.getItem(`localSongs_${currentUser}`) || '[]');
+  } catch (e) { return []; }
+}
+function saveLocalSongs(songs) {
+  localStorage.setItem(`localSongs_${currentUser}`, JSON.stringify(songs));
+}
+
+function updateStorageDisplay(){
+  const usedMB=(totalUsedBytes/1024/1024).toFixed(1);
+  const freeMB=((TOTAL_CLOUD_LIMIT-totalUsedBytes)/1024/1024).toFixed(1);
+  const localQueue = getLocalQueue();
+  const pending = localQueue.length;
+  document.getElementById('syncStatus').innerText = 
+    `☁️ 已使用：${usedMB} MB / 剩餘：${freeMB} MB ${pending>0?'· '+pending+'首待同步':''} · 點擊同步`;
+}
 document.getElementById('syncStatus').addEventListener('click',async()=>{await loadCloud();});
 
+// 加载云端 + 恢复本地未同步歌曲
 async function loadCloud(){
   const statusDiv=document.getElementById('syncStatus');
   statusDiv.innerText='☁️ 雲端同步中...';
@@ -466,15 +494,58 @@ async function loadCloud(){
         songList.push({id:s.id,name:s.name||'未命名歌曲',size:fileSize,uploader:s.uploader||'未知',blob,url:URL.createObjectURL(blob),coverUrl,duration:s.duration||0});
       }catch(e){console.warn('歌曲跳過:',e);}
     }
+    // 恢复本地歌曲
+    const localSongs = getLocalSongs();
+    for(const local of localSongs) {
+      const exists = songList.some(s => s.id === local.id);
+      if (!exists) {
+        const blob = base64ToBlob(local.blob_data);
+        const coverUrl = local.cover_data ? `data:image/jpeg;base64,${local.cover_data}` : null;
+        songList.push({
+          id: local.id,
+          name: local.name,
+          size: local.size,
+          uploader: local.uploader,
+          blob, url: URL.createObjectURL(blob), coverUrl, duration:0, isLocal:true
+        });
+        totalUsedBytes += local.size;
+      }
+    }
     updateStorageDisplay();
     const ud=JSON.parse(localStorage.getItem('music_'+currentUser)||'{"liked":[],"history":[]}');
     likedSongs=ud.liked||[];playHistory=ud.history||[];
     renderAll();
+    syncLocalQueueToCloud(); // 后台同步
   }catch(e){
     console.error(e);
     statusDiv.innerText=`❌ 同步失敗 · 點擊重試`;
     songList=[];renderAll();
   }
+}
+
+// 后台同步本地到云端
+async function syncLocalQueueToCloud() {
+  const queue = getLocalQueue();
+  if (queue.length === 0) return;
+  console.log('后台同步队列：', queue.length);
+  for (const task of queue) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer':'return=minimal' },
+        body: JSON.stringify({
+          name: task.name, size: task.size, uploader: currentUser,
+          blob_data: task.blob_data, cover_data: task.cover_data
+        })
+      });
+      // 同步成功，删除本地
+      const localSongs = getLocalSongs().filter(s => s.id !== task.id);
+      saveLocalSongs(localSongs);
+    } catch (e) { console.error('同步失败', e); break; }
+  }
+  saveLocalQueue([]);
+  updateStorageDisplay();
+  await loadCloud();
 }
 
 function playSong(index){
@@ -484,7 +555,7 @@ function playSong(index){
   audio.src=s.url;audio.playbackRate=currentSpeed;audio.volume=0;
   audio.play().catch(()=>{});fadeIn();
   playPauseBtn.innerText='⏸️';
-  playerTitle.innerText=s.name;
+  playerTitle.innerText=s.name + (s.isLocal ? ' 📱' : '☁️');
   playerArtist.innerText='🎀 '+(s.uploader||'未知');
   if(s.coverUrl){playerCover.src=s.coverUrl;playerCover.style.display='block';playerCoverIcon.style.display='none';}
   else{playerCover.style.display='none';playerCoverIcon.style.display='flex';}
@@ -495,7 +566,31 @@ function playSong(index){
 }
 
 function renderAll(){renderSongs();renderLiked();renderHistory();}
-function renderSongs(){const el=document.getElementById('mySongList');el.innerHTML='';const list=searchKeyword?songList.filter(s=>s.name.toLowerCase().includes(searchKeyword)):songList;if(!list.length){el.innerHTML='<div class="empty-state">🌷 無歌曲，快去上傳吧！</div>';return;}list.forEach(s=>{const oi=songList.findIndex(x=>x.id===s.id);const playing=currentSongIndex===oi;const owner=s.uploader===currentUser&&!isGuest;const div=document.createElement('div');div.className='song-item'+(playing?' now-playing':'');div.innerHTML=(s.coverUrl?'<img class="song-cover-img" src="'+s.coverUrl+'">':'<div class="song-cover-img">🌷</div>')+'<div class="song-info"><div class="song-name">'+esc(s.name)+'</div><div class="song-uploader">'+esc(s.uploader||'未知')+' · '+fmtSize(s.size)+(s.duration?' · '+fmtTime(s.duration):'')+'</div></div><div class="action-btns">'+(owner?'<button class="edit-name-btn">✏️</button>':'')+'<button class="like-btn'+(likedSongs.includes(s.id)?' active':'')+'">💖</button>'+(owner?'<button class="delete-song-btn">🗑️</button>':'')+'</div>';div.querySelector('.like-btn').onclick=e=>{e.stopPropagation();toggleLike(s.id);};if(owner){div.querySelector('.edit-name-btn').onclick=e=>{e.stopPropagation();editSong(s.id);};div.querySelector('.delete-song-btn').onclick=e=>{e.stopPropagation();deleteSong(s.id);};}div.onclick=()=>playSong(oi);el.appendChild(div);});}
+function renderSongs(){
+  const el=document.getElementById('mySongList');el.innerHTML='';
+  const list=searchKeyword?songList.filter(s=>s.name.toLowerCase().includes(searchKeyword)):songList;
+  if(!list.length){el.innerHTML='<div class="empty-state">🌷 無歌曲，快去上傳吧！</div>';return;}
+  list.forEach(s=>{
+    const oi=songList.findIndex(x=>x.id===s.id);
+    const playing=currentSongIndex===oi;
+    const owner=s.uploader===currentUser&&!isGuest;
+    const div=document.createElement('div');
+    div.className='song-item'+(playing?' now-playing':'');
+    div.innerHTML=(s.coverUrl?'<img class="song-cover-img" src="'+s.coverUrl+'">':'<div class="song-cover-img">🌷</div>')+
+      '<div class="song-info"><div class="song-name">'+esc(s.name)+(s.isLocal?' <span style="color:#ff69b4">📱本地</span>':'')+'</div>'+
+      '<div class="song-uploader">'+esc(s.uploader||'未知')+' · '+fmtSize(s.size)+(s.duration?' · '+fmtTime(s.duration):'')+'</div></div>'+
+      '<div class="action-btns">'+(owner?'<button class="edit-name-btn">✏️</button>':'')+
+      '<button class="like-btn'+(likedSongs.includes(s.id)?' active':'')+'">💖</button>'+
+      (owner?'<button class="delete-song-btn">🗑️</button>':'')+'</div>';
+    div.querySelector('.like-btn').onclick=e=>{e.stopPropagation();toggleLike(s.id);};
+    if(owner){
+      div.querySelector('.edit-name-btn').onclick=e=>{e.stopPropagation();editSong(s.id);};
+      div.querySelector('.delete-song-btn').onclick=e=>{e.stopPropagation();deleteSong(s.id);};
+    }
+    div.onclick=()=>playSong(oi);
+    el.appendChild(div);
+  });
+}
 function renderLiked(){const el=document.getElementById('likedSongList');el.innerHTML='';const list=songList.filter(s=>likedSongs.includes(s.id));if(!list.length){el.innerHTML='<div class="empty-state">💖 尚無喜愛歌曲</div>';return;}list.forEach(s=>{const idx=songList.findIndex(x=>x.id===s.id);const div=document.createElement('div');div.className='song-item'+(currentSongIndex===idx?' now-playing':'');div.innerHTML=(s.coverUrl?'<img src="'+s.coverUrl+'" class="song-cover-img">':'<div class="song-cover-img">💖</div>')+'<div class="song-info"><div class="song-name">'+esc(s.name)+'</div><div class="song-uploader">'+esc(s.uploader||'未知')+'</div></div><button class="like-btn active">💖</button>';div.querySelector('.like-btn').onclick=()=>toggleLike(s.id);div.onclick=()=>playSong(idx);el.appendChild(div);});}
 function renderHistory(){const el=document.getElementById('historyList');el.innerHTML='';if(!playHistory.length){el.innerHTML='<div class="empty-state">📖 無播放記錄</div>';return;}playHistory.slice(0,30).forEach(h=>{const div=document.createElement('div');div.className='song-item';div.innerHTML='<div class="song-cover-img">📖</div><div class="song-info"><div class="song-name">'+esc(h.name)+'</div><div class="song-uploader">'+h.time+'</div></div>';div.onclick=()=>{const i=songList.findIndex(x=>x.id===h.id);if(i!==-1)playSong(i);};el.appendChild(div);});}
 function toggleLike(id){likedSongs=likedSongs.includes(id)?likedSongs.filter(x=>x!==id):[...likedSongs,id];if(!isGuest)localStorage.setItem('music_'+currentUser,JSON.stringify({liked:likedSongs,history:playHistory}));renderAll();}
@@ -507,7 +602,16 @@ async function editSong(id){
 }
 async function deleteSong(id){
   if(!confirm('確定刪除這首歌曲？'))return;
-  try{await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});loadCloud();}catch(e){alert('刪除失敗');}
+  try{
+    // 删除云端
+    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+    // 删除本地
+    const localSongs = getLocalSongs().filter(s => s.id !== id);
+    saveLocalSongs(localSongs);
+    const queue = getLocalQueue().filter(t => t.id !== id);
+    saveLocalQueue(queue);
+    loadCloud();
+  }catch(e){alert('刪除失敗');}
 }
 
 let isDragging=false;
@@ -550,16 +654,36 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{btn.onclick=()=>{activeTab=b
 document.getElementById('searchInput').oninput=e=>{searchKeyword=e.target.value.toLowerCase();renderSongs();};
 document.getElementById('uploadArea').onclick=()=>document.getElementById('file-input').click();
 
+// 【优化：先存本地，后台同步】
 document.getElementById('file-input').onchange=async(e)=>{
   if(isGuest){alert('訪客無法上傳');return;}
   const file=e.target.files[0];if(!file)return;
   if(file.size>MAX_FILE_SIZE){alert('檔案超過10MB，無法上傳！');e.target.value='';return;}
+  
   const coverFile=document.getElementById('cover-input').files[0];
   const coverB64=coverFile?await blobToBase64(coverFile):null;
-  document.getElementById('syncStatus').innerText='📤 上傳中...';
   const b64=await blobToBase64(file);
-  await fetch(`${SUPABASE_URL}/rest/v1/songs`,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({name:file.name,size:file.size,uploader:currentUser,blob_data:b64,cover_data:coverB64})});
-  e.target.value='';await loadCloud();
+  const songId = 'local_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
+  
+  // 1. 保存到本地歌曲
+  const localSongs = getLocalSongs();
+  localSongs.push({
+    id: songId, name: file.name, size: file.size, uploader: currentUser,
+    blob_data: b64, cover_data: coverB64
+  });
+  saveLocalSongs(localSongs);
+  
+  // 2. 加入同步队列
+  const queue = getLocalQueue();
+  queue.push({
+    id: songId, name: file.name, size: file.size, uploader: currentUser,
+    blob_data: b64, cover_data: coverB64
+  });
+  saveLocalQueue(queue);
+  
+  e.target.value='';
+  await loadCloud(); // 立即显示
+  setTimeout(syncLocalQueueToCloud, 1000); // 后台同步
 };
 
 settingsBtn.onclick=()=>{
