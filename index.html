@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <meta name="theme-color" content="#1a0b14">
-<title>🌷 粉粉音樂盒 · 完整功能</title>
+<title>🌷 粉粉音樂盒 · 完整同步版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
@@ -214,10 +214,9 @@ body {
 <audio id="audioPlayer"></audio>
 
 <script>
-// 設定上限 10MB
+// 核心修復: 雲端主導同步 + 刪除時自動清理其他用戶本地孤立歌曲
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const TOTAL_CLOUD_LIMIT = 1024 * 1024 * 1024;
-
 const SUPABASE_URL = "https://ghhpzkglrdjmpfntnntv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uXo17Iv43dO1XSLdqfUjFw_3RYBww96";
 const VALID_USERS = {'lin0525':'aa340993','ccy1103':'aa340993'};
@@ -227,521 +226,53 @@ let likedSongs = [], playHistory = [];
 let audio = document.getElementById('audioPlayer');
 let heartEnabled=true, rotateEnabled=true, autoNextEnabled=true, fadeEnabled=true;
 let currentVolume=0.7, currentSpeed=1.0, playMode='sequential', sleepTimer=null;
-
 let db = null;
 const DB_NAME = 'PinkMusicDB';
 const DB_VERSION = 1;
 const STORE_SONGS = 'songs';
 const STORE_META = 'userMeta';
 
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = (e) => {
-      const dbInst = e.target.result;
-      if (!dbInst.objectStoreNames.contains(STORE_SONGS)) {
-        const store = dbInst.createObjectStore(STORE_SONGS, { keyPath: 'id' });
-        store.createIndex('uploader', 'uploader', { unique: false });
-      }
-      if (!dbInst.objectStoreNames.contains(STORE_META)) {
-        dbInst.createObjectStore(STORE_META, { keyPath: 'key' });
-      }
-    };
-    req.onsuccess = (e) => { db = e.target.result; resolve(db); };
-    req.onerror = (e) => reject(e);
-  });
-}
-
-async function getLocalSongs() {
-  if (!db) await openDB();
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_SONGS, 'readonly');
-    const store = tx.objectStore(STORE_SONGS);
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => resolve([]);
-  });
-}
-
-async function saveSongToLocal(song) {
-  if (!db) await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_SONGS, 'readwrite');
-    const store = tx.objectStore(STORE_SONGS);
-    const req = store.put(song);
-    req.onsuccess = resolve;
-    req.onerror = reject;
-  });
-}
-
-async function deleteSongFromLocal(id) {
-  if (!db) await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_SONGS, 'readwrite');
-    const store = tx.objectStore(STORE_SONGS);
-    const req = store.delete(id);
-    req.onsuccess = resolve;
-    req.onerror = reject;
-  });
-}
-
-async function getUserMeta() {
-  if (!db) await openDB();
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_META, 'readonly');
-    const store = tx.objectStore(STORE_META);
-    const req = store.get(currentUser);
-    req.onsuccess = () => {
-      const data = req.result ? req.result.data : { liked: [], history: [], settings: {} };
-      resolve(data);
-    };
-    req.onerror = () => resolve({ liked: [], history: [], settings: {} });
-  });
-}
-
-async function saveUserMeta(meta) {
-  if (!db || isGuest) return;
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_META, 'readwrite');
-    const store = tx.objectStore(STORE_META);
-    store.put({ key: currentUser, data: meta });
-    tx.oncomplete = resolve;
-  });
-}
-
+function openDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, DB_VERSION); req.onupgradeneeded = (e) => { const dbInst = e.target.result; if (!dbInst.objectStoreNames.contains(STORE_SONGS)) { const store = dbInst.createObjectStore(STORE_SONGS, { keyPath: 'id' }); store.createIndex('uploader', 'uploader', { unique: false }); } if (!dbInst.objectStoreNames.contains(STORE_META)) dbInst.createObjectStore(STORE_META, { keyPath: 'key' }); }; req.onsuccess = (e) => { db = e.target.result; resolve(db); }; req.onerror = (e) => reject(e); }); }
+async function getLocalSongs() { if (!db) await openDB(); return new Promise((resolve) => { const tx = db.transaction(STORE_SONGS, 'readonly'); const store = tx.objectStore(STORE_SONGS); const req = store.getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => resolve([]); }); }
+async function saveSongToLocal(song) { if (!db) await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_SONGS, 'readwrite'); const store = tx.objectStore(STORE_SONGS); const req = store.put(song); req.onsuccess = resolve; req.onerror = reject; }); }
+async function deleteSongFromLocal(id) { if (!db) await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_SONGS, 'readwrite'); const store = tx.objectStore(STORE_SONGS); const req = store.delete(id); req.onsuccess = resolve; req.onerror = reject; }); }
+async function getUserMeta() { if (!db) await openDB(); return new Promise((resolve) => { const tx = db.transaction(STORE_META, 'readonly'); const store = tx.objectStore(STORE_META); const req = store.get(currentUser); req.onsuccess = () => { const data = req.result ? req.result.data : { liked: [], history: [], settings: {} }; resolve(data); }; req.onerror = () => resolve({ liked: [], history: [], settings: {} }); }); }
+async function saveUserMeta(meta) { if (!db || isGuest) return; return new Promise((resolve) => { const tx = db.transaction(STORE_META, 'readwrite'); const store = tx.objectStore(STORE_META); store.put({ key: currentUser, data: meta }); tx.oncomplete = resolve; }); }
 let globalSongs = [];
-
-function setSyncStatus(text, isSyncing = false) {
-  const el = document.getElementById('syncStatus');
-  if (el) {
-    el.innerText = text;
-    if (isSyncing) el.classList.add('syncing');
-    else el.classList.remove('syncing');
-  }
-}
-
-// 計算雲端總使用容量
-async function getCloudUsedBytes() {
-  if (isGuest) return 0;
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=size`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    if (!res.ok) throw new Error('查詢失敗');
-    const songs = await res.json();
-    const total = songs.reduce((sum, song) => sum + (song.size || 0), 0);
-    return total;
-  } catch(e) {
-    console.error('取得雲端容量失敗:', e);
-    return -1;
-  }
-}
-
-// 更新雲端空間顯示
-async function updateCloudStorageDisplay() {
-  if (isGuest) {
-    setSyncStatus('🌙 訪客模式 · 僅本地儲存', false);
-    return;
-  }
-  
-  const usedBytes = await getCloudUsedBytes();
-  
-  if (usedBytes === -1) {
-    setSyncStatus('☁️ 無法取得雲端容量 · 點擊重試', false);
-    return;
-  }
-  
-  const usedMB = (usedBytes / 1024 / 1024).toFixed(1);
-  const percent = (usedBytes / TOTAL_CLOUD_LIMIT * 100).toFixed(1);
-  const localTotal = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
-  const localMB = (localTotal / 1024 / 1024).toFixed(1);
-  
-  setSyncStatus(`💾 本地 ${localMB}MB / ☁️ 雲端 ${usedMB}MB / 1024MB (${percent}%) · 點擊同步`, false);
-}
-
-// 單首歌曲上傳到雲端
-async function uploadSongToCloud(song) {
-  if (isGuest) return false;
-  try {
-    const blob = song.blob;
-    const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(blob); });
-    const coverB64 = song.coverData ? song.coverData.split(',')[1] : null;
-    await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: song.id, name: song.name, size: song.size, uploader: song.uploader, blob_data: b64, cover_data: coverB64, duration: song.duration || 0 })
-    });
-    return true;
-  } catch(e) {
-    console.error('雲端上傳失敗:', e);
-    return false;
-  }
-}
-
-// 從雲端拉取所有歌曲
-async function pullCloudToLocal() {
-  if (isGuest) return;
-  setSyncStatus('📥 下載雲端歌曲...', true);
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { 
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } 
-    });
-    if (!res.ok) throw new Error('雲端請求失敗');
-    const cloudSongs = await res.json();
-    let localSongs = await getLocalSongs();
-    let addedCount = 0;
-    for (const cs of cloudSongs) {
-      const exists = localSongs.find(l => l.id === cs.id);
-      if (!exists) {
-        const blob = base64ToBlob(cs.blob_data);
-        const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null;
-        const newSong = { 
-          id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader, 
-          blob: blob, url: URL.createObjectURL(blob), coverUrl, 
-          duration: cs.duration || 0, coverData: coverUrl 
-        };
-        await saveSongToLocal(newSong);
-        addedCount++;
-      }
-    }
-    if (addedCount > 0) {
-      await loadLocalAndRender();
-      setSyncStatus(`✅ 新增 ${addedCount} 首雲端歌曲`, false);
-    }
-    await updateCloudStorageDisplay();
-  } catch(e) { 
-    console.error(e);
-    setSyncStatus('❌ 雲端拉取失敗，檢查網路後點擊重試', false); 
-  }
-}
-
-function base64ToBlob(b64) {
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
-  return new Blob([arr], {type: 'audio/mp3'});
-}
-
-async function loadLocalAndRender() {
-  const songs = await getLocalSongs();
-  globalSongs.forEach(s => { if(s.url) URL.revokeObjectURL(s.url); });
-  globalSongs = songs.map(s => ({
-    ...s,
-    url: URL.createObjectURL(s.blob),
-    coverUrl: s.coverUrl || null
-  }));
-  const meta = await getUserMeta();
-  likedSongs = meta.liked || [];
-  playHistory = meta.history || [];
-  // 載入儲存的設定
-  if (meta.settings) {
-    if (meta.settings.volume !== undefined) currentVolume = meta.settings.volume;
-    if (meta.settings.speed !== undefined) currentSpeed = meta.settings.speed;
-    if (meta.settings.playMode !== undefined) playMode = meta.settings.playMode;
-    if (meta.settings.autoNext !== undefined) autoNextEnabled = meta.settings.autoNext;
-    if (meta.settings.fadeEnabled !== undefined) fadeEnabled = meta.settings.fadeEnabled;
-  }
-  // 套用音量和速度到 audio 物件
-  audio.volume = currentVolume;
-  audio.playbackRate = currentSpeed;
-  
-  // 更新 UI 顯示
-  document.getElementById('autoNext').checked = autoNextEnabled;
-  document.getElementById('fadeEnabled').checked = fadeEnabled;
-  document.getElementById('defaultVolume').value = Math.round(currentVolume * 100);
-  document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100);
-  document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
-  
-  // 高亮當前速度按鈕
-  document.querySelectorAll('.speed-preset').forEach(btn => {
-    if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-  
-  // 高亮當前模式按鈕
-  document.querySelectorAll('.mode-preset').forEach(btn => {
-    if (btn.dataset.mode === playMode) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-  
-  renderAll();
-  await updateCloudStorageDisplay();
-}
-
-// 儲存設定
-async function saveSettings() {
-  if (isGuest) return;
-  const meta = await getUserMeta();
-  meta.settings = {
-    volume: currentVolume,
-    speed: currentSpeed,
-    playMode: playMode,
-    autoNext: autoNextEnabled,
-    fadeEnabled: fadeEnabled
-  };
-  await saveUserMeta({ liked: likedSongs, history: playHistory, settings: meta.settings });
-}
-
-// 上傳新歌曲
-async function uploadNewSong(file, coverFile) {
-  if (isGuest) { alert('訪客無法上傳'); return; }
-  if (file.size > MAX_FILE_SIZE) { alert(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`); return; }
-  
-  const usedBytes = await getCloudUsedBytes();
-  if (usedBytes !== -1 && (usedBytes + file.size) > TOTAL_CLOUD_LIMIT) {
-    alert(`雲端空間不足！目前使用 ${(usedBytes/1024/1024).toFixed(1)}MB，上限 ${(TOTAL_CLOUD_LIMIT/1024/1024).toFixed(0)}MB`);
-    return;
-  }
-  
-  const id = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-  let coverData = null;
-  if (coverFile) {
-    const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(coverFile); });
-    coverData = b64;
-  }
-  
-  const newSong = {
-    id: id,
-    name: file.name,
-    size: file.size,
-    uploader: currentUser,
-    blob: file,
-    coverUrl: coverData,
-    duration: 0,
-    coverData: coverData
-  };
-  
-  setSyncStatus('📤 儲存本地中...', true);
-  await saveSongToLocal(newSong);
-  await loadLocalAndRender();
-  
-  setSyncStatus('☁️ 上傳雲端中...', true);
-  const success = await uploadSongToCloud(newSong);
-  if (success) {
-    setSyncStatus('✅ 上傳成功！已同步至雲端', false);
-  } else {
-    setSyncStatus('⚠️ 雲端上傳失敗，稍後可點擊同步', false);
-  }
-  await updateCloudStorageDisplay();
-}
-
-async function deleteSong(id) {
-  if (!confirm('刪除歌曲將同時刪除本地與雲端')) return;
-  setSyncStatus('🗑️ 刪除中...', true);
-  await deleteSongFromLocal(id);
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { 
-      method: 'DELETE', 
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } 
-    });
-  } catch(e) {}
-  await loadLocalAndRender();
-  if (globalSongs[currentSongIndex]?.id === id) { audio.pause(); currentSongIndex = -1; }
-  setSyncStatus('✅ 已刪除', false);
-  await updateCloudStorageDisplay();
-}
-
-async function editSongName(id, newName) {
-  const song = globalSongs.find(s => s.id === id);
-  if(!song) return;
-  song.name = newName;
-  setSyncStatus('✏️ 更新中...', true);
-  await saveSongToLocal({ ...song, blob: song.blob });
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { 
-      method: 'PATCH', 
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ name: newName }) 
-    });
-  } catch(e) {}
-  await loadLocalAndRender();
-  setSyncStatus('✅ 已更新', false);
-  await updateCloudStorageDisplay();
-}
-
-async function toggleLike(id) {
-  if(likedSongs.includes(id)) likedSongs = likedSongs.filter(x => x !== id);
-  else likedSongs.push(id);
-  await saveUserMeta({ liked: likedSongs, history: playHistory });
-  renderAll();
-}
-
-function addToHistory(song) {
-  playHistory = [{ id: song.id, name: song.name, time: new Date().toLocaleString('zh-TW') }, ...playHistory.filter(h => h.id !== song.id)].slice(0, 50);
-  saveUserMeta({ liked: likedSongs, history: playHistory });
-}
-
-function fadeIn(dur=500) { 
-  if(!fadeEnabled) { audio.volume = currentVolume; return; } 
-  audio.volume = 0; 
-  let start = null; 
-  function step(ts) { 
-    if(!start) start = ts; 
-    let p = Math.min(1, (ts-start)/dur); 
-    audio.volume = p * currentVolume; 
-    if(p<1) requestAnimationFrame(step); 
-  } 
-  requestAnimationFrame(step); 
-}
-
-function fadeOut(dur, cb) { 
-  if(!fadeEnabled) { audio.pause(); if(cb) cb(); return; } 
-  let start=null; 
-  function step(ts) { 
-    if(!start) start=ts; 
-    let p=Math.max(0,1-(ts-start)/dur); 
-    audio.volume = p*currentVolume; 
-    if(p>0) requestAnimationFrame(step); 
-    else { audio.pause(); if(cb) cb(); } 
-  } 
-  requestAnimationFrame(step); 
-}
-
-function playSong(index) {
-  if(index < 0 || index >= globalSongs.length) return;
-  const s = globalSongs[index];
-  currentSongIndex = index;
-  audio.src = s.url;
-  // 重要：設定播放速度和音量
-  audio.playbackRate = currentSpeed;
-  audio.volume = 0;
-  audio.play().catch(e=>console.log('播放錯誤:', e));
-  fadeIn();
-  playPauseBtn.innerText = '⏸️';
-  playerTitle.innerText = s.name;
-  playerArtist.innerText = '🎀 ' + (s.uploader || '未知');
-  if(s.coverUrl) { playerCover.src = s.coverUrl; playerCover.style.display = 'block'; playerCoverIcon.style.display = 'none'; }
-  else { playerCover.style.display = 'none'; playerCoverIcon.style.display = 'flex'; }
-  if(rotateEnabled && !audio.paused) playerCover.classList.add('rotating');
-  else playerCover.classList.remove('rotating');
-  addToHistory(s);
-  renderAll();
-}
-
-function getCurrentList() {
-  return (activeTab === 'liked-songs' && document.getElementById('liked-songs').classList.contains('active')) ? 
-    globalSongs.filter(s => likedSongs.includes(s.id)) : globalSongs;
-}
-
-function playNext() {
-  if (!autoNextEnabled) return;
-  const list = getCurrentList();
-  if (!list.length) return;
-  const cid = globalSongs[currentSongIndex]?.id;
-  const pos = list.findIndex(s => s.id === cid);
-  let nextIdx;
-  if (playMode === 'shuffle') {
-    let newPos;
-    do { newPos = Math.floor(Math.random() * list.length); } while (list.length > 1 && newPos === pos);
-    nextIdx = newPos;
-  } else if (playMode === 'loop') {
-    nextIdx = pos;
-  } else {
-    nextIdx = (pos + 1) % list.length;
-  }
-  const targetId = list[nextIdx]?.id;
-  const origIdx = globalSongs.findIndex(s => s.id === targetId);
-  if (origIdx !== -1 && (playMode !== 'loop' || origIdx !== currentSongIndex)) {
-    playSong(origIdx);
-  } else if (playMode === 'loop' && origIdx === currentSongIndex) {
-    audio.currentTime = 0;
-    audio.play();
-  }
-}
-
-audio.addEventListener('ended', () => {
-  if (playMode === 'loop') {
-    audio.currentTime = 0;
-    audio.play().catch(e=>console.log);
-  } else {
-    playNext();
-  }
-});
-
-// 睡眠定時器
-function setSleepTimer(minutes) {
-  if (sleepTimer) clearTimeout(sleepTimer);
-  if (minutes <= 0) {
-    document.getElementById('sleepTimerStatus').innerText = '目前：關閉';
-    return;
-  }
-  document.getElementById('sleepTimerStatus').innerText = `目前：${minutes}分鐘後暫停`;
-  sleepTimer = setTimeout(() => {
-    fadeOut(800, () => {
-      audio.pause();
-      audio.currentTime = 0;
-      playPauseBtn.innerText = '▶️';
-      if(rotateEnabled) playerCover.classList.remove('rotating');
-    });
-    document.getElementById('sleepTimerStatus').innerText = '目前：關閉';
-    sleepTimer = null;
-  }, minutes * 60000);
-}
-
+function setSyncStatus(text, isSyncing = false) { const el = document.getElementById('syncStatus'); if (el) { el.innerText = text; if (isSyncing) el.classList.add('syncing'); else el.classList.remove('syncing'); } }
+async function getCloudUsedBytes() { if (isGuest) return 0; try { const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=size`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); if (!res.ok) throw new Error('查詢失敗'); const songs = await res.json(); return songs.reduce((sum, song) => sum + (song.size || 0), 0); } catch(e) { return -1; } }
+async function updateCloudStorageDisplay() { if (isGuest) { setSyncStatus('🌙 訪客模式 · 僅本地儲存', false); return; } const usedBytes = await getCloudUsedBytes(); if (usedBytes === -1) { setSyncStatus('☁️ 無法取得雲端容量 · 點擊重試', false); return; } const usedMB = (usedBytes / 1024 / 1024).toFixed(1); const percent = (usedBytes / TOTAL_CLOUD_LIMIT * 100).toFixed(1); const localTotal = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0); const localMB = (localTotal / 1024 / 1024).toFixed(1); setSyncStatus(`💾 本地 ${localMB}MB / ☁️ 雲端 ${usedMB}MB / 1024MB (${percent}%) · 點擊同步`, false); }
+function base64ToBlob(b64) { const bin = atob(b64); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr], {type: 'audio/mp3'}); }
+async function cleanMetaByValidIds(validSongIds) { const meta = await getUserMeta(); let changed = false; const newLiked = meta.liked.filter(id => validSongIds.has(id)); if (newLiked.length !== meta.liked.length) { meta.liked = newLiked; changed = true; } const newHistory = meta.history.filter(h => validSongIds.has(h.id)); if (newHistory.length !== meta.history.length) { meta.history = newHistory; changed = true; } if (changed) { await saveUserMeta({ liked: meta.liked, history: meta.history, settings: meta.settings }); likedSongs = meta.liked; playHistory = meta.history; } }
+async function pullCloudToLocal() { if (isGuest) return; setSyncStatus('🔄 完整同步中 (雲端為主)...', true); try { const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); if (!res.ok) throw new Error('雲端請求失敗'); const cloudSongs = await res.json(); const localSongs = await getLocalSongs(); const cloudIdSet = new Set(cloudSongs.map(cs => cs.id)); const toDelete = localSongs.filter(local => !cloudIdSet.has(local.id)); for (const del of toDelete) { if (globalSongs.find(g => g.id === del.id)?.url) URL.revokeObjectURL(globalSongs.find(g => g.id === del.id)?.url); await deleteSongFromLocal(del.id); } let addedCount = 0; for (const cs of cloudSongs) { const exists = localSongs.find(l => l.id === cs.id); if (!exists) { const blob = base64ToBlob(cs.blob_data); const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null; const newSong = { id: cs.id, name: cs.name, size: cs.size, uploader: cs.uploader, blob: blob, url: URL.createObjectURL(blob), coverUrl, duration: cs.duration || 0, coverData: coverUrl }; await saveSongToLocal(newSong); addedCount++; } } await cleanMetaByValidIds(cloudIdSet); await loadLocalAndRender(); if (addedCount > 0) setSyncStatus(`✅ 同步完成: 新增 ${addedCount} 首, 清理 ${toDelete.length} 首孤立歌曲`, false); else if (toDelete.length > 0) setSyncStatus(`🧹 同步完成: 清理本地 ${toDelete.length} 首已刪除歌曲`, false); else setSyncStatus(`✅ 同步完成，雲端歌曲 ${cloudSongs.length} 首`, false); await updateCloudStorageDisplay(); } catch(e) { console.error(e); setSyncStatus('❌ 同步失敗，檢查網路後點擊重試', false); } }
+async function loadLocalAndRender() { const songs = await getLocalSongs(); globalSongs.forEach(s => { if(s.url) URL.revokeObjectURL(s.url); }); globalSongs = songs.map(s => ({ ...s, url: URL.createObjectURL(s.blob), coverUrl: s.coverUrl || null })); const meta = await getUserMeta(); likedSongs = meta.liked || []; playHistory = meta.history || []; if (meta.settings) { if (meta.settings.volume !== undefined) currentVolume = meta.settings.volume; if (meta.settings.speed !== undefined) currentSpeed = meta.settings.speed; if (meta.settings.playMode !== undefined) playMode = meta.settings.playMode; if (meta.settings.autoNext !== undefined) autoNextEnabled = meta.settings.autoNext; if (meta.settings.fadeEnabled !== undefined) fadeEnabled = meta.settings.fadeEnabled; } audio.volume = currentVolume; audio.playbackRate = currentSpeed; document.getElementById('autoNext').checked = autoNextEnabled; document.getElementById('fadeEnabled').checked = fadeEnabled; document.getElementById('defaultVolume').value = Math.round(currentVolume * 100); document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100); document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); document.querySelectorAll('.speed-preset').forEach(btn => { if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active'); else btn.classList.remove('active'); }); document.querySelectorAll('.mode-preset').forEach(btn => { if (btn.dataset.mode === playMode) btn.classList.add('active'); else btn.classList.remove('active'); }); renderAll(); await updateCloudStorageDisplay(); }
+async function saveSettings() { if (isGuest) return; const meta = await getUserMeta(); meta.settings = { volume: currentVolume, speed: currentSpeed, playMode: playMode, autoNext: autoNextEnabled, fadeEnabled: fadeEnabled }; await saveUserMeta({ liked: likedSongs, history: playHistory, settings: meta.settings }); }
+async function uploadNewSong(file, coverFile) { if (isGuest) { alert('訪客無法上傳'); return; } if (file.size > MAX_FILE_SIZE) { alert(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`); return; } const usedBytes = await getCloudUsedBytes(); if (usedBytes !== -1 && (usedBytes + file.size) > TOTAL_CLOUD_LIMIT) { alert(`雲端空間不足！目前使用 ${(usedBytes/1024/1024).toFixed(1)}MB，上限 ${(TOTAL_CLOUD_LIMIT/1024/1024).toFixed(0)}MB`); return; } const id = Date.now() + '_' + Math.random().toString(36).substr(2, 8); let coverData = null; if (coverFile) { const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(coverFile); }); coverData = b64; } const newSong = { id, name: file.name, size: file.size, uploader: currentUser, blob: file, coverUrl: coverData, duration: 0, coverData: coverData }; setSyncStatus('📤 儲存本地中...', true); await saveSongToLocal(newSong); await loadLocalAndRender(); setSyncStatus('☁️ 上傳雲端中...', true); try { const b64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(file); }); const coverB64 = coverData ? coverData.split(',')[1] : null; await fetch(`${SUPABASE_URL}/rest/v1/songs`, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, name: file.name, size: file.size, uploader: currentUser, blob_data: b64, cover_data: coverB64, duration: 0 }) }); setSyncStatus('✅ 上傳成功！', false); } catch(e) { setSyncStatus('⚠️ 雲端上傳失敗，稍後可點擊同步', false); } await updateCloudStorageDisplay(); }
+async function deleteSong(id) { if (!confirm('刪除歌曲將同時刪除本地與雲端，其他用戶同步後也會移除')) return; setSyncStatus('🗑️ 刪除中...', true); if (globalSongs[currentSongIndex]?.id === id) { audio.pause(); currentSongIndex = -1; playPauseBtn.innerText = '▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); } const meta = await getUserMeta(); const newLiked = meta.liked.filter(lid => lid !== id); const newHistory = meta.history.filter(h => h.id !== id); await saveUserMeta({ liked: newLiked, history: newHistory, settings: meta.settings }); likedSongs = newLiked; playHistory = newHistory; await deleteSongFromLocal(id); try { await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }); } catch(e) {} await loadLocalAndRender(); setSyncStatus('✅ 已刪除並同步雲端', false); await updateCloudStorageDisplay(); }
+async function editSongName(id, newName) { const song = globalSongs.find(s => s.id === id); if(!song) return; song.name = newName; await saveSongToLocal({ ...song, blob: song.blob }); try { await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName }) }); } catch(e) {} await loadLocalAndRender(); }
+async function toggleLike(id) { if(likedSongs.includes(id)) likedSongs = likedSongs.filter(x => x !== id); else likedSongs.push(id); await saveUserMeta({ liked: likedSongs, history: playHistory }); renderAll(); }
+function addToHistory(song) { playHistory = [{ id: song.id, name: song.name, time: new Date().toLocaleString('zh-TW') }, ...playHistory.filter(h => h.id !== song.id)].slice(0, 50); saveUserMeta({ liked: likedSongs, history: playHistory }); }
+function fadeIn(dur=500) { if(!fadeEnabled) { audio.volume = currentVolume; return; } audio.volume = 0; let start = null; function step(ts) { if(!start) start = ts; let p = Math.min(1, (ts-start)/dur); audio.volume = p * currentVolume; if(p<1) requestAnimationFrame(step); } requestAnimationFrame(step); }
+function fadeOut(dur, cb) { if(!fadeEnabled) { audio.pause(); if(cb) cb(); return; } let start=null; function step(ts) { if(!start) start=ts; let p=Math.max(0,1-(ts-start)/dur); audio.volume = p*currentVolume; if(p>0) requestAnimationFrame(step); else { audio.pause(); if(cb) cb(); } } requestAnimationFrame(step); }
+function playSong(index) { if(index < 0 || index >= globalSongs.length) return; const s = globalSongs[index]; currentSongIndex = index; audio.src = s.url; audio.playbackRate = currentSpeed; audio.volume = 0; audio.play().catch(e=>console.log('播放錯誤:', e)); fadeIn(); playPauseBtn.innerText = '⏸️'; playerTitle.innerText = s.name; playerArtist.innerText = '🎀 ' + (s.uploader || '未知'); if(s.coverUrl) { playerCover.src = s.coverUrl; playerCover.style.display = 'block'; playerCoverIcon.style.display = 'none'; } else { playerCover.style.display = 'none'; playerCoverIcon.style.display = 'flex'; } if(rotateEnabled && !audio.paused) playerCover.classList.add('rotating'); else playerCover.classList.remove('rotating'); addToHistory(s); renderAll(); }
+function getCurrentList() { return (activeTab === 'liked-songs' && document.getElementById('liked-songs').classList.contains('active')) ? globalSongs.filter(s => likedSongs.includes(s.id)) : globalSongs; }
+function playNext() { if (!autoNextEnabled) return; const list = getCurrentList(); if (!list.length) return; const cid = globalSongs[currentSongIndex]?.id; const pos = list.findIndex(s => s.id === cid); let nextIdx; if (playMode === 'shuffle') { let newPos; do { newPos = Math.floor(Math.random() * list.length); } while (list.length > 1 && newPos === pos); nextIdx = newPos; } else if (playMode === 'loop') { nextIdx = pos; } else { nextIdx = (pos + 1) % list.length; } const targetId = list[nextIdx]?.id; const origIdx = globalSongs.findIndex(s => s.id === targetId); if (origIdx !== -1 && (playMode !== 'loop' || origIdx !== currentSongIndex)) playSong(origIdx); else if (playMode === 'loop' && origIdx === currentSongIndex) { audio.currentTime = 0; audio.play(); } }
+audio.addEventListener('ended', () => { if (playMode === 'loop') { audio.currentTime = 0; audio.play().catch(e=>console.log); } else { playNext(); } });
+function setSleepTimer(minutes) { if (sleepTimer) clearTimeout(sleepTimer); if (minutes <= 0) { document.getElementById('sleepTimerStatus').innerText = '目前：關閉'; return; } document.getElementById('sleepTimerStatus').innerText = `目前：${minutes}分鐘後暫停`; sleepTimer = setTimeout(() => { fadeOut(800, () => { audio.pause(); audio.currentTime = 0; playPauseBtn.innerText = '▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }); document.getElementById('sleepTimerStatus').innerText = '目前：關閉'; sleepTimer = null; }, minutes * 60000); }
 function renderAll() { renderSongs(); renderLiked(); renderHistory(); }
-
-function renderSongs() {
-  const el = document.getElementById('mySongList'); if(!el) return;
-  el.innerHTML = '';
-  let list = searchKeyword ? globalSongs.filter(s => s.name.toLowerCase().includes(searchKeyword)) : globalSongs;
-  if(!list.length) { el.innerHTML = '<div class="empty-state">🌷 無歌曲，上傳第一首！</div>'; return; }
-  list.forEach((s, idx) => {
-    const originalIdx = globalSongs.findIndex(x=>x.id===s.id);
-    const playing = currentSongIndex === originalIdx;
-    const owner = s.uploader === currentUser && !isGuest;
-    const div = document.createElement('div'); div.className = 'song-item' + (playing ? ' now-playing' : '');
-    div.innerHTML = (s.coverUrl ? `<img class="song-cover-img" src="${s.coverUrl}">` : '<div class="song-cover-img">🌷</div>') +
-      `<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div><div class="song-uploader">${escapeHtml(s.uploader)} · ${fmtSize(s.size)}</div></div>` +
-      `<div class="action-btns">${owner ? '<button class="edit-name-btn">✏️</button>' : ''}<button class="like-btn ${likedSongs.includes(s.id) ? 'active' : ''}">💖</button>${owner ? '<button class="delete-song-btn">🗑️</button>' : ''}</div>`;
-    div.querySelector('.like-btn').onclick = (e) => { e.stopPropagation(); toggleLike(s.id); };
-    if(owner) {
-      div.querySelector('.edit-name-btn').onclick = (e) => { e.stopPropagation(); const newName = prompt('新名稱', s.name); if(newName && newName !== s.name) editSongName(s.id, newName); };
-      div.querySelector('.delete-song-btn').onclick = (e) => { e.stopPropagation(); deleteSong(s.id); };
-    }
-    div.onclick = () => playSong(originalIdx);
-    el.appendChild(div);
-  });
-}
-
-function renderLiked(){ 
-  const el=document.getElementById('likedSongList'); if(!el) return;
-  el.innerHTML=''; 
-  const list=globalSongs.filter(s=>likedSongs.includes(s.id)); 
-  if(!list.length){el.innerHTML='<div class="empty-state">💖 尚無喜愛</div>';return;} 
-  list.forEach(s=>{const idx=globalSongs.findIndex(x=>x.id===s.id); const div=document.createElement('div'); div.className='song-item'+(currentSongIndex===idx?' now-playing':''); div.innerHTML=(s.coverUrl?`<img src="${s.coverUrl}" class="song-cover-img">`:'<div class="song-cover-img">💖</div>')+`<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div></div><button class="like-btn active">💖</button>`; div.querySelector('.like-btn').onclick=()=>toggleLike(s.id); div.onclick=()=>playSong(idx); el.appendChild(div);}); 
-}
-
-function renderHistory(){
-  const el=document.getElementById('historyList'); if(!el) return;
-  el.innerHTML=''; 
-  if(!playHistory.length){el.innerHTML='<div class="empty-state">📖 無記錄</div>';return;} 
-  playHistory.slice(0,30).forEach(h=>{const div=document.createElement('div'); div.className='song-item'; div.innerHTML=`<div class="song-cover-img">📖</div><div class="song-info"><div class="song-name">${escapeHtml(h.name)}</div><div class="song-uploader">${h.time}</div></div>`; div.onclick=()=>{const i=globalSongs.findIndex(x=>x.id===h.id); if(i!==-1) playSong(i);}; el.appendChild(div);});
-}
-
+function renderSongs() { const el = document.getElementById('mySongList'); if(!el) return; el.innerHTML = ''; let list = searchKeyword ? globalSongs.filter(s => s.name.toLowerCase().includes(searchKeyword)) : globalSongs; if(!list.length) { el.innerHTML = '<div class="empty-state">🌷 無歌曲，上傳第一首！</div>'; return; } list.forEach((s, idx) => { const originalIdx = globalSongs.findIndex(x=>x.id===s.id); const playing = currentSongIndex === originalIdx; const owner = s.uploader === currentUser && !isGuest; const div = document.createElement('div'); div.className = 'song-item' + (playing ? ' now-playing' : ''); div.innerHTML = (s.coverUrl ? `<img class="song-cover-img" src="${s.coverUrl}">` : '<div class="song-cover-img">🌷</div>') + `<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div><div class="song-uploader">${escapeHtml(s.uploader)} · ${fmtSize(s.size)}</div></div><div class="action-btns">${owner ? '<button class="edit-name-btn">✏️</button>' : ''}<button class="like-btn ${likedSongs.includes(s.id) ? 'active' : ''}">💖</button>${owner ? '<button class="delete-song-btn">🗑️</button>' : ''}</div>`; div.querySelector('.like-btn').onclick = (e) => { e.stopPropagation(); toggleLike(s.id); }; if(owner) { div.querySelector('.edit-name-btn').onclick = (e) => { e.stopPropagation(); const newName = prompt('新名稱', s.name); if(newName && newName !== s.name) editSongName(s.id, newName); }; div.querySelector('.delete-song-btn').onclick = (e) => { e.stopPropagation(); deleteSong(s.id); }; } div.onclick = () => playSong(originalIdx); el.appendChild(div); }); }
+function renderLiked(){ const el=document.getElementById('likedSongList'); if(!el) return; el.innerHTML=''; const list=globalSongs.filter(s=>likedSongs.includes(s.id)); if(!list.length){el.innerHTML='<div class="empty-state">💖 尚無喜愛</div>';return;} list.forEach(s=>{const idx=globalSongs.findIndex(x=>x.id===s.id); const div=document.createElement('div'); div.className='song-item'+(currentSongIndex===idx?' now-playing':''); div.innerHTML=(s.coverUrl?`<img src="${s.coverUrl}" class="song-cover-img">`:'<div class="song-cover-img">💖</div>')+`<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div></div><button class="like-btn active">💖</button>`; div.querySelector('.like-btn').onclick=()=>toggleLike(s.id); div.onclick=()=>playSong(idx); el.appendChild(div);}); }
+function renderHistory(){ const el=document.getElementById('historyList'); if(!el) return; el.innerHTML=''; if(!playHistory.length){el.innerHTML='<div class="empty-state">📖 無記錄</div>';return;} playHistory.slice(0,30).forEach(h=>{const div=document.createElement('div'); div.className='song-item'; div.innerHTML=`<div class="song-cover-img">📖</div><div class="song-info"><div class="song-name">${escapeHtml(h.name)}</div><div class="song-uploader">${h.time}</div></div>`; div.onclick=()=>{const i=globalSongs.findIndex(x=>x.id===h.id); if(i!==-1) playSong(i);}; el.appendChild(div);}); }
 function escapeHtml(str){ return (str||'').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 function fmtSize(b){ if(!b) return ''; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
-
-// 事件綁定
 document.getElementById('uploadArea').onclick = () => document.getElementById('file-input').click();
-document.getElementById('file-input').onchange = async (e) => {
-  const file = e.target.files[0]; if(!file) return;
-  const coverFile = document.getElementById('cover-input').files[0];
-  await uploadNewSong(file, coverFile);
-  e.target.value = ''; document.getElementById('cover-input').value = '';
-};
+document.getElementById('file-input').onchange = async (e) => { const file = e.target.files[0]; if(!file) return; const coverFile = document.getElementById('cover-input').files[0]; await uploadNewSong(file, coverFile); e.target.value = ''; document.getElementById('cover-input').value = ''; };
 document.getElementById('syncStatus').onclick = async () => { await pullCloudToLocal(); };
 document.getElementById('clearHistoryBtn').onclick = async () => { if(confirm('清除記錄')){ playHistory=[]; await saveUserMeta({liked:likedSongs, history:[]}); renderHistory(); }};
 document.getElementById('clearLikedBtn').onclick = async () => { if(confirm('清除喜愛')){ likedSongs=[]; await saveUserMeta({liked:[], history:playHistory}); renderAll(); }};
 document.getElementById('resetAllBtn').onclick = async () => { if(confirm('刪除所有本地歌曲與資料？不可復原')){ indexedDB.deleteDatabase(DB_NAME); localStorage.clear(); location.reload(); }};
-
-// 播放器事件
+const progressContainer = document.getElementById('progressContainer'), progressBar = document.getElementById('progressBar'), timeCurrent = document.getElementById('timeCurrent'), timeTotal = document.getElementById('timeTotal');
 let isDragging=false;
 function setProgress(e){ const rect=progressContainer.getBoundingClientRect(); let x=e.clientX; if(e.touches) x=e.touches[0].clientX; const p=Math.max(0,Math.min(1,(x-rect.left)/rect.width)); progressBar.style.width=p*100+'%'; if(audio.duration) audio.currentTime=p*audio.duration; }
 progressContainer.addEventListener('mousedown',e=>{isDragging=true; setProgress(e);});
@@ -751,173 +282,33 @@ progressContainer.addEventListener('touchstart',e=>{isDragging=true; setProgress
 document.addEventListener('touchmove',e=>{if(isDragging) setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchend',()=>isDragging=false);
 audio.addEventListener('timeupdate',()=>{ if(!audio.duration||isDragging) return; progressBar.style.width=(audio.currentTime/audio.duration*100)+'%'; timeCurrent.innerText=fmtTime(audio.currentTime); timeTotal.innerText=fmtTime(audio.duration);});
+const playPauseBtn = document.getElementById('playPauseBtn'), prev15Btn = document.getElementById('prev15Btn'), next15Btn = document.getElementById('next15Btn'), nextTrackBtn = document.getElementById('nextTrackBtn'), playerCover = document.getElementById('playerCover'), playerCoverIcon = document.getElementById('playerCoverIcon'), playerTitle = document.getElementById('playerTitle'), playerArtist = document.getElementById('playerArtist');
 playPauseBtn.onclick = () => { if(!globalSongs.length){alert('無歌曲');return;} if(audio.paused){ if(!audio.src||currentSongIndex===-1) playSong(0); else{ audio.play(); fadeIn(); } playPauseBtn.innerText='⏸️'; if(rotateEnabled) playerCover.classList.add('rotating'); } else { fadeOut(300,()=>{ playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }); }};
 prev15Btn.onclick = () => audio.currentTime = Math.max(0, audio.currentTime-15);
 next15Btn.onclick = () => audio.currentTime = Math.min(audio.duration||0, audio.currentTime+15);
 nextTrackBtn.onclick = playNext;
-
-// 快速設定彈窗 (完整修復)
-document.getElementById('settingsBtn').onclick = () => {
-  const modal = document.createElement('div'); modal.className = 'settings-modal';
-  modal.innerHTML = `<div class="settings-modal-content">
-    <h3>⚙️ 快速設定</h3>
-    <div class="range-row"><label>🔊 音量 <span id="quickVolDisplay">${Math.round(currentVolume*100)}</span>%</label><input type="range" id="quickVolume" min="0" max="100" value="${Math.round(currentVolume*100)}" step="1"></div>
-    <div class="range-row"><label>⚡ 播放速度 <span id="quickSpeedDisplay">${currentSpeed.toFixed(2)}</span>x</label><div class="btn-group"><button class="opt-btn quick-speed" data-speed="0.5">0.5x</button><button class="opt-btn quick-speed" data-speed="0.75">0.75x</button><button class="opt-btn quick-speed" data-speed="1">1x</button><button class="opt-btn quick-speed" data-speed="1.25">1.25x</button><button class="opt-btn quick-speed" data-speed="1.5">1.5x</button><button class="opt-btn quick-speed" data-speed="2">2x</button></div></div>
-    <div class="range-row"><label>🔄 播放模式</label><div class="btn-group"><button class="opt-btn quick-mode ${playMode==='sequential'?'active':''}" data-mode="sequential">順序</button><button class="opt-btn quick-mode ${playMode==='shuffle'?'active':''}" data-mode="shuffle">隨機</button><button class="opt-btn quick-mode ${playMode==='loop'?'active':''}" data-mode="loop">循環</button></div></div>
-    <div class="range-row"><label>⏰ 睡眠定時</label><div class="btn-group"><button class="opt-btn sleep-quick" data-time="0">關閉</button><button class="opt-btn sleep-quick" data-time="10">10分</button><button class="opt-btn sleep-quick" data-time="20">20分</button><button class="opt-btn sleep-quick" data-time="30">30分</button><button class="opt-btn sleep-quick" data-time="60">60分</button></div><div id="quickSleepStatus" style="font-size:11px;margin-top:6px;color:var(--accent);">${sleepTimer?'⏲️ 定時中':'⚡ 關閉'}</div></div>
-    <button class="close-settings">關閉</button>
-  </div>`;
-  document.body.appendChild(modal);
-  
-  // 音量控制 - 立即生效
-  const volSlider = modal.querySelector('#quickVolume');
-  volSlider.oninput = (e) => { 
-    currentVolume = e.target.value/100; 
-    audio.volume = currentVolume; 
-    modal.querySelector('#quickVolDisplay').innerText = e.target.value;
-    saveSettings();
-  };
-  
-  // 速度控制 - 立即生效
-  modal.querySelectorAll('.quick-speed').forEach(btn => { 
-    btn.onclick = () => { 
-      currentSpeed = parseFloat(btn.dataset.speed); 
-      audio.playbackRate = currentSpeed;
-      modal.querySelector('#quickSpeedDisplay').innerText = currentSpeed.toFixed(2); 
-      modal.querySelectorAll('.quick-speed').forEach(b=>b.classList.remove('active')); 
-      btn.classList.add('active'); 
-      // 同步設定頁面的顯示
-      document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
-      document.querySelectorAll('.speed-preset').forEach(b=>{
-        if(Math.abs(parseFloat(b.dataset.speed) - currentSpeed) < 0.01) b.classList.add('active');
-        else b.classList.remove('active');
-      });
-      saveSettings(); 
-    }; 
-    if(Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active');
-  });
-  
-  // 模式控制
-  modal.querySelectorAll('.quick-mode').forEach(btn => { 
-    btn.onclick = () => { 
-      playMode = btn.dataset.mode; 
-      modal.querySelectorAll('.quick-mode').forEach(b=>b.classList.remove('active')); 
-      btn.classList.add('active');
-      // 同步設定頁面
-      document.querySelectorAll('.mode-preset').forEach(b=>{
-        if(b.dataset.mode === playMode) b.classList.add('active');
-        else b.classList.remove('active');
-      });
-      saveSettings(); 
-    }; 
-  });
-  
-  // 睡眠定時
-  modal.querySelectorAll('.sleep-quick').forEach(btn => { 
-    btn.onclick = () => { 
-      const t = parseInt(btn.dataset.time); 
-      setSleepTimer(t); 
-      modal.querySelector('#quickSleepStatus').innerText = t>0 ? `⏲️ ${t}分鐘後暫停` : '⚡ 關閉'; 
-      saveSettings(); 
-    }; 
-  });
-  
-  modal.querySelector('.close-settings').onclick = () => modal.remove();
-};
-
-// 設定分頁事件 - 音量
-document.getElementById('defaultVolume').oninput = (e) => { 
-  currentVolume = e.target.value/100; 
-  audio.volume = currentVolume; 
-  document.getElementById('defaultVolDisplay').innerText = e.target.value; 
-  saveSettings(); 
-};
-
-// 設定分頁事件 - 速度
-document.querySelectorAll('.speed-preset').forEach(btn => { 
-  btn.onclick = () => { 
-    currentSpeed = parseFloat(btn.dataset.speed); 
-    audio.playbackRate = currentSpeed;
-    document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); 
-    document.querySelectorAll('.speed-preset').forEach(b=>b.classList.remove('active')); 
-    btn.classList.add('active'); 
-    saveSettings(); 
-  }; 
-});
-
-// 設定分頁事件 - 模式
-document.querySelectorAll('.mode-preset').forEach(btn => { 
-  btn.onclick = () => { 
-    playMode = btn.dataset.mode; 
-    document.querySelectorAll('.mode-preset').forEach(b=>b.classList.remove('active')); 
-    btn.classList.add('active'); 
-    saveSettings(); 
-  }; 
-});
-
-// 設定分頁事件 - 睡眠定時
-document.querySelectorAll('.sleep-preset').forEach(btn => { 
-  btn.onclick = () => { 
-    setSleepTimer(parseInt(btn.dataset.time)); 
-    saveSettings(); 
-  }; 
-});
-
-// 特效開關
+document.getElementById('settingsBtn').onclick = () => { const modal = document.createElement('div'); modal.className = 'settings-modal'; modal.innerHTML = `<div class="settings-modal-content"><h3>⚙️ 快速設定</h3><div class="range-row"><label>🔊 音量 <span id="quickVolDisplay">${Math.round(currentVolume*100)}</span>%</label><input type="range" id="quickVolume" min="0" max="100" value="${Math.round(currentVolume*100)}" step="1"></div><div class="range-row"><label>⚡ 播放速度 <span id="quickSpeedDisplay">${currentSpeed.toFixed(2)}</span>x</label><div class="btn-group"><button class="opt-btn quick-speed" data-speed="0.5">0.5x</button><button class="opt-btn quick-speed" data-speed="0.75">0.75x</button><button class="opt-btn quick-speed" data-speed="1">1x</button><button class="opt-btn quick-speed" data-speed="1.25">1.25x</button><button class="opt-btn quick-speed" data-speed="1.5">1.5x</button><button class="opt-btn quick-speed" data-speed="2">2x</button></div></div><div class="range-row"><label>🔄 播放模式</label><div class="btn-group"><button class="opt-btn quick-mode ${playMode==='sequential'?'active':''}" data-mode="sequential">順序</button><button class="opt-btn quick-mode ${playMode==='shuffle'?'active':''}" data-mode="shuffle">隨機</button><button class="opt-btn quick-mode ${playMode==='loop'?'active':''}" data-mode="loop">循環</button></div></div><div class="range-row"><label>⏰ 睡眠定時</label><div class="btn-group"><button class="opt-btn sleep-quick" data-time="0">關閉</button><button class="opt-btn sleep-quick" data-time="10">10分</button><button class="opt-btn sleep-quick" data-time="20">20分</button><button class="opt-btn sleep-quick" data-time="30">30分</button><button class="opt-btn sleep-quick" data-time="60">60分</button></div><div id="quickSleepStatus" style="font-size:11px;margin-top:6px;color:var(--accent);">${sleepTimer?'⏲️ 定時中':'⚡ 關閉'}</div></div><button class="close-settings">關閉</button></div>`; document.body.appendChild(modal); const volSlider = modal.querySelector('#quickVolume'); volSlider.oninput = (e) => { currentVolume = e.target.value/100; audio.volume = currentVolume; modal.querySelector('#quickVolDisplay').innerText = e.target.value; saveSettings(); }; modal.querySelectorAll('.quick-speed').forEach(btn => { btn.onclick = () => { currentSpeed = parseFloat(btn.dataset.speed); audio.playbackRate = currentSpeed; modal.querySelector('#quickSpeedDisplay').innerText = currentSpeed.toFixed(2); modal.querySelectorAll('.quick-speed').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); document.querySelectorAll('.speed-preset').forEach(b=>{ if(Math.abs(parseFloat(b.dataset.speed) - currentSpeed) < 0.01) b.classList.add('active'); else b.classList.remove('active'); }); saveSettings(); }; if(Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active'); }); modal.querySelectorAll('.quick-mode').forEach(btn => { btn.onclick = () => { playMode = btn.dataset.mode; modal.querySelectorAll('.quick-mode').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.mode-preset').forEach(b=>{ if(b.dataset.mode === playMode) b.classList.add('active'); else b.classList.remove('active'); }); saveSettings(); }; }); modal.querySelectorAll('.sleep-quick').forEach(btn => { btn.onclick = () => { const t = parseInt(btn.dataset.time); setSleepTimer(t); modal.querySelector('#quickSleepStatus').innerText = t>0 ? `⏲️ ${t}分鐘後暫停` : '⚡ 關閉'; saveSettings(); }; }); modal.querySelector('.close-settings').onclick = () => modal.remove(); };
+document.getElementById('defaultVolume').oninput = (e) => { currentVolume = e.target.value/100; audio.volume = currentVolume; document.getElementById('defaultVolDisplay').innerText = e.target.value; saveSettings(); };
+document.querySelectorAll('.speed-preset').forEach(btn => { btn.onclick = () => { currentSpeed = parseFloat(btn.dataset.speed); audio.playbackRate = currentSpeed; document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); document.querySelectorAll('.speed-preset').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); saveSettings(); }; });
+document.querySelectorAll('.mode-preset').forEach(btn => { btn.onclick = () => { playMode = btn.dataset.mode; document.querySelectorAll('.mode-preset').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); saveSettings(); }; });
+document.querySelectorAll('.sleep-preset').forEach(btn => { btn.onclick = () => { setSleepTimer(parseInt(btn.dataset.time)); saveSettings(); }; });
 document.getElementById('toggleHeart').onchange = e => heartEnabled = e.target.checked;
-document.getElementById('toggleRotate').onchange = e => { 
-  rotateEnabled = e.target.checked; 
-  if(!rotateEnabled) playerCover.classList.remove('rotating'); 
-  else if(!audio.paused) playerCover.classList.add('rotating'); 
-};
+document.getElementById('toggleRotate').onchange = e => { rotateEnabled = e.target.checked; if(!rotateEnabled) playerCover.classList.remove('rotating'); else if(!audio.paused) playerCover.classList.add('rotating'); };
 document.getElementById('autoNext').onchange = e => { autoNextEnabled = e.target.checked; saveSettings(); };
 document.getElementById('fadeEnabled').onchange = e => { fadeEnabled = e.target.checked; saveSettings(); };
-
-// 主題切換
-function setTheme(theme){ 
-  document.body.classList.remove('light-mode','dark-mode'); 
-  if(theme==='light') document.body.classList.add('light-mode'); 
-  if(theme==='dark') document.body.classList.add('dark-mode'); 
-  localStorage.setItem('theme',theme); 
-  document.querySelectorAll('.theme-btn, .theme-opt').forEach(b=>{
-    if(b.dataset.theme === theme) b.classList.add('active');
-    else b.classList.remove('active');
-  });
-}
+function setTheme(theme){ document.body.classList.remove('light-mode','dark-mode'); if(theme==='light') document.body.classList.add('light-mode'); if(theme==='dark') document.body.classList.add('dark-mode'); localStorage.setItem('theme',theme); document.querySelectorAll('.theme-btn, .theme-opt').forEach(b=>{ if(b.dataset.theme === theme) b.classList.add('active'); else b.classList.remove('active'); }); }
 document.querySelectorAll('.theme-opt, .theme-btn').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
-
-// 分頁切換
 let activeTab='my-songs';
-document.querySelectorAll('.tab-btn').forEach(btn=>{ 
-  btn.onclick=()=>{ 
-    activeTab=btn.dataset.tab; 
-    document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active')); 
-    btn.classList.add('active'); 
-    document.getElementById(btn.dataset.tab).classList.add('active'); 
-    renderAll(); 
-  }; 
-});
+document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.onclick=()=>{ activeTab=btn.dataset.tab; document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); renderAll(); }; });
 document.getElementById('searchInput').oninput = e => { searchKeyword = e.target.value.toLowerCase(); renderSongs(); };
-
-// 登入初始化
-async function initApp() { 
-  setTheme(localStorage.getItem('theme')||'pink'); 
-  await openDB(); 
-  await loadLocalAndRender(); 
-  await pullCloudToLocal();
-}
-
+async function initApp() { setTheme(localStorage.getItem('theme')||'pink'); await openDB(); await loadLocalAndRender(); await pullCloudToLocal(); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pullCloudToLocal(); }); }
 const loginContainer=document.getElementById('loginContainer'), appScrollRoot=document.getElementById('appScrollRoot');
 function doLogin(username,guestMode){ currentUser=username; isGuest=guestMode; loginContainer.style.opacity='0'; setTimeout(()=>{ loginContainer.style.display='none'; appScrollRoot.style.display='block'; document.getElementById('mainContainer').style.display='block'; document.getElementById('welcomeMsg').innerHTML=guestMode?'🌷 訪客模式 · 僅瀏覽':'🎀 歡迎 '+username; initApp(); },500); }
 document.getElementById('loginBtn').onclick=()=>{ const u=document.getElementById('username').value.trim(), p=document.getElementById('password').value.trim(); if(VALID_USERS[u] && VALID_USERS[u]===p) doLogin(u,false); else document.getElementById('errorMsg').style.display='block'; };
 document.getElementById('guestBtn').onclick=()=>doLogin('訪客_'+Math.random().toString(36).substr(2,6),true);
 document.getElementById('logoutBtn').onclick=()=>{ localStorage.removeItem('savedLogin'); location.reload(); };
-try{ const s=JSON.parse(localStorage.getItem('savedLogin')||'null'); if(s&&VALID_USERS[s.username]) doLogin(s.username,false); }catch(e){}
-
 function fixHeight(){ let h=window.innerHeight; document.body.style.height=h+'px'; if(loginContainer) loginContainer.style.height=h+'px'; if(appScrollRoot) appScrollRoot.style.height=h+'px'; }
 fixHeight(); window.addEventListener('resize',fixHeight);
-
-// 愛心特效
 document.addEventListener('click',e=>{ if(heartEnabled){ const h=document.createElement('div'); h.className='heart'; h.innerText=['💖','🌸','💓','💕'][Math.floor(Math.random()*4)]; h.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;color:#ff69b4;font-size:'+(Math.random()*12+12)+'px;'; document.body.appendChild(h); setTimeout(()=>h.remove(),1000); } });
 </script>
 </body>
