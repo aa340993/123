@@ -202,10 +202,7 @@ body {
     <div class="tab-content" id="settings-tab">
       <div class="info-card"><h3>🎨 外觀主題</h3><div class="setting-row"><div><div class="setting-label">主題選擇</div><div class="setting-desc">切換粉色 / 亮色 / 暗色</div></div><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div></div>
       <div class="info-card"><h3>✨ 特效與動畫</h3><div class="setting-row"><div><div class="setting-label">愛心點擊特效</div><div class="setting-desc">點擊畫面出現愛心</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">封面旋轉動畫</div><div class="setting-desc">播放時封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div></div>
-      <div class="info-card"><h3>🎧 播放設定</h3><div class="setting-row"><div><div class="setting-label">自動播放下一首</div><div class="setting-desc">歌曲結束自動繼續</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">播放時淡入效果</div><div class="setting-desc">讓音樂更柔軟進場</div></div><label class="toggle-wrap"><input type="checkbox" id="fadeEnabled" checked><span class="toggle-slider"></span></label></div>
-        <div class="range-row"><label>🔊 音量 <span id="defaultVolDisplay">70</span>%</label><input type="range" id="defaultVolume" min="0" max="100" value="70" step="1"></div>
-        <div class="range-row"><label>⚡ 播放速度 <span id="defaultSpeedDisplay">1.0</span>x</label><div class="btn-group"><button class="opt-btn speed-preset" data-speed="0.5">0.5x</button><button class="opt-btn speed-preset" data-speed="0.75">0.75x</button><button class="opt-btn speed-preset" data-speed="1">1x</button><button class="opt-btn speed-preset" data-speed="1.25">1.25x</button><button class="opt-btn speed-preset" data-speed="1.5">1.5x</button><button class="opt-btn speed-preset" data-speed="2">2x</button></div></div>
-      </div>
+      <div class="info-card"><h3>🎧 播放設定</h3><div class="setting-row"><div><div class="setting-label">自動播放下一首</div><div class="setting-desc">歌曲結束自動繼續</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">播放時淡入效果</div><div class="setting-desc">讓音樂更柔軟進場</div></div><label class="toggle-wrap"><input type="checkbox" id="fadeEnabled" checked><span class="toggle-slider"></span></label></div><div class="range-row"><label>🔊 預設音量 <span id="defaultVolDisplay">70</span>%</label><input type="range" id="defaultVolume" min="0" max="100" value="70" step="1"></div><div class="range-row"><label>⚡ 預設播放速度 <span id="defaultSpeedDisplay">1.0</span>x</label><div class="btn-group"><button class="opt-btn speed-preset" data-speed="0.5">0.5x</button><button class="opt-btn speed-preset" data-speed="0.75">0.75x</button><button class="opt-btn speed-preset" data-speed="1">1x</button><button class="opt-btn speed-preset" data-speed="1.25">1.25x</button><button class="opt-btn speed-preset" data-speed="1.5">1.5x</button><button class="opt-btn speed-preset" data-speed="2">2x</button></div></div></div>
       <div class="info-card"><h3>🔄 播放模式</h3><div class="setting-row"><div><div class="setting-label">預設播放模式</div><div class="setting-desc">順序 / 隨機 / 單曲循環</div></div><div class="btn-group"><button class="opt-btn mode-preset" data-mode="sequential">順序</button><button class="opt-btn mode-preset" data-mode="shuffle">隨機</button><button class="opt-btn mode-preset" data-mode="loop">循環</button></div></div></div>
       <div class="info-card"><h3>⏰ 睡眠定時</h3><div class="setting-row"><div><div class="setting-label">設定定時關閉音樂</div><div class="setting-desc" id="sleepTimerStatus">目前：關閉</div></div><div class="btn-group"><button class="opt-btn sleep-preset" data-time="0">關閉</button><button class="opt-btn sleep-preset" data-time="10">10分</button><button class="opt-btn sleep-preset" data-time="20">20分</button><button class="opt-btn sleep-preset" data-time="30">30分</button><button class="opt-btn sleep-preset" data-time="60">60分</button></div></div></div>
       <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div></div>
@@ -230,7 +227,6 @@ let likedSongs = [], playHistory = [];
 let audio = document.getElementById('audioPlayer');
 let heartEnabled=true, rotateEnabled=true, autoNextEnabled=true, fadeEnabled=true;
 let currentVolume=0.7, currentSpeed=1.0, playMode='sequential', sleepTimer=null;
-let isVolumeAdjusting = false; // 防止音量調整時被覆蓋
 
 let db = null;
 const DB_NAME = 'PinkMusicDB';
@@ -322,31 +318,6 @@ function setSyncStatus(text, isSyncing = false) {
     if (isSyncing) el.classList.add('syncing');
     else el.classList.remove('syncing');
   }
-}
-
-// 直接設定音量的函數 (立即生效)
-function setVolume(vol) {
-  currentVolume = Math.max(0, Math.min(1, vol));
-  audio.volume = currentVolume;
-  // 更新所有音量顯示
-  document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100);
-  const volSlider = document.getElementById('defaultVolume');
-  if (volSlider) volSlider.value = Math.round(currentVolume * 100);
-}
-
-// 直接設定速度的函數 (立即生效)
-function setSpeed(speed) {
-  currentSpeed = speed;
-  audio.playbackRate = currentSpeed;
-  document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
-  // 更新按鈕高亮
-  document.querySelectorAll('.speed-preset').forEach(btn => {
-    if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
 }
 
 // 計算雲端總使用容量
@@ -607,11 +578,7 @@ function addToHistory(song) {
 }
 
 function fadeIn(dur=500) { 
-  if(!fadeEnabled) { 
-    audio.volume = currentVolume; 
-    return; 
-  } 
-  // 淡入時從0開始，但目標是 currentVolume
+  if(!fadeEnabled) { audio.volume = currentVolume; return; } 
   audio.volume = 0; 
   let start = null; 
   function step(ts) { 
@@ -624,21 +591,14 @@ function fadeIn(dur=500) {
 }
 
 function fadeOut(dur, cb) { 
-  if(!fadeEnabled) { 
-    audio.pause(); 
-    if(cb) cb(); 
-    return; 
-  } 
+  if(!fadeEnabled) { audio.pause(); if(cb) cb(); return; } 
   let start=null; 
   function step(ts) { 
     if(!start) start=ts; 
     let p=Math.max(0,1-(ts-start)/dur); 
-    audio.volume = p * currentVolume; 
+    audio.volume = p*currentVolume; 
     if(p>0) requestAnimationFrame(step); 
-    else { 
-      audio.pause(); 
-      if(cb) cb(); 
-    } 
+    else { audio.pause(); if(cb) cb(); } 
   } 
   requestAnimationFrame(step); 
 }
@@ -650,7 +610,6 @@ function playSong(index) {
   audio.src = s.url;
   // 重要：設定播放速度和音量
   audio.playbackRate = currentSpeed;
-  // 音量由 fadeIn 處理，但先設為0
   audio.volume = 0;
   audio.play().catch(e=>console.log('播放錯誤:', e));
   fadeIn();
@@ -792,27 +751,12 @@ progressContainer.addEventListener('touchstart',e=>{isDragging=true; setProgress
 document.addEventListener('touchmove',e=>{if(isDragging) setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchend',()=>isDragging=false);
 audio.addEventListener('timeupdate',()=>{ if(!audio.duration||isDragging) return; progressBar.style.width=(audio.currentTime/audio.duration*100)+'%'; timeCurrent.innerText=fmtTime(audio.currentTime); timeTotal.innerText=fmtTime(audio.duration);});
-playPauseBtn.onclick = () => { 
-  if(!globalSongs.length){alert('無歌曲');return;} 
-  if(audio.paused){ 
-    if(!audio.src||currentSongIndex===-1) playSong(0); 
-    else{ 
-      audio.play(); 
-      if(fadeEnabled) fadeIn();
-      else audio.volume = currentVolume;
-    } 
-    playPauseBtn.innerText='⏸️'; 
-    if(rotateEnabled) playerCover.classList.add('rotating'); 
-  } else { 
-    if(fadeEnabled) fadeOut(300,()=>{ playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); });
-    else { audio.pause(); playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }
-  } 
-};
+playPauseBtn.onclick = () => { if(!globalSongs.length){alert('無歌曲');return;} if(audio.paused){ if(!audio.src||currentSongIndex===-1) playSong(0); else{ audio.play(); fadeIn(); } playPauseBtn.innerText='⏸️'; if(rotateEnabled) playerCover.classList.add('rotating'); } else { fadeOut(300,()=>{ playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }); }};
 prev15Btn.onclick = () => audio.currentTime = Math.max(0, audio.currentTime-15);
 next15Btn.onclick = () => audio.currentTime = Math.min(audio.duration||0, audio.currentTime+15);
 nextTrackBtn.onclick = playNext;
 
-// 快速設定彈窗 (完整修復音量)
+// 快速設定彈窗 (完整修復)
 document.getElementById('settingsBtn').onclick = () => {
   const modal = document.createElement('div'); modal.className = 'settings-modal';
   modal.innerHTML = `<div class="settings-modal-content">
@@ -825,17 +769,12 @@ document.getElementById('settingsBtn').onclick = () => {
   </div>`;
   document.body.appendChild(modal);
   
-  // 音量控制 - 立即生效，直接設定 audio.volume
+  // 音量控制 - 立即生效
   const volSlider = modal.querySelector('#quickVolume');
-  const volDisplay = modal.querySelector('#quickVolDisplay');
   volSlider.oninput = (e) => { 
-    const newVol = e.target.value / 100;
-    currentVolume = newVol;
-    audio.volume = currentVolume;
-    volDisplay.innerText = e.target.value;
-    // 同步設定頁面的顯示
-    document.getElementById('defaultVolume').value = e.target.value;
-    document.getElementById('defaultVolDisplay').innerText = e.target.value;
+    currentVolume = e.target.value/100; 
+    audio.volume = currentVolume; 
+    modal.querySelector('#quickVolDisplay').innerText = e.target.value;
     saveSettings();
   };
   
@@ -864,6 +803,7 @@ document.getElementById('settingsBtn').onclick = () => {
       playMode = btn.dataset.mode; 
       modal.querySelectorAll('.quick-mode').forEach(b=>b.classList.remove('active')); 
       btn.classList.add('active');
+      // 同步設定頁面
       document.querySelectorAll('.mode-preset').forEach(b=>{
         if(b.dataset.mode === playMode) b.classList.add('active');
         else b.classList.remove('active');
@@ -885,11 +825,10 @@ document.getElementById('settingsBtn').onclick = () => {
   modal.querySelector('.close-settings').onclick = () => modal.remove();
 };
 
-// 設定分頁事件 - 音量 (直接控制 audio.volume)
+// 設定分頁事件 - 音量
 document.getElementById('defaultVolume').oninput = (e) => { 
-  const newVol = e.target.value / 100;
-  currentVolume = newVol;
-  audio.volume = currentVolume;
+  currentVolume = e.target.value/100; 
+  audio.volume = currentVolume; 
   document.getElementById('defaultVolDisplay').innerText = e.target.value; 
   saveSettings(); 
 };
