@@ -152,14 +152,14 @@ body {
 /* ── 底部播放器：正確貼底 + home indicator 留空 ── */
 .player-bar{
   position:fixed;
-  bottom:0;left:0;width:100%;
+  bottom:0;left:0;width:120%;
   background:var(--player-bg);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(50px);
+  -webkit-backdrop-filter:blur(50px);
   padding:12px 16px;
   /* 在 home indicator 機型上加底部間距 */
-  padding-bottom: calc(12px + var(--safe-bottom));
-  display:flex;align-items:center;gap:12px;
+  padding-bottom: calc(20px + var(--safe-bottom));
+  display:flex;align-items:center;gap:20px;
   z-index:999;
   border-top:1px solid var(--border-color);
   /* 左右也要安全距離 */
