@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <meta name="theme-color" content="#1a0b14">
-<title>🌷 粉粉音樂盒 · 自動雲端同步</title>
+<title>🌷 粉粉音樂盒 · PWA優化</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
@@ -24,6 +24,7 @@
 --border-color:rgba(255,105,180,0.3);--text-primary:#ffe4ec;--text-secondary:#ff99bb;
 --accent:#ff69b4;--accent-dark:#ff1493;--accent-glow:rgba(255,105,180,0.3);
 --input-bg:rgba(0,0,0,0.3);--player-bg:rgba(30,15,22,0.95);
+--player-height: 70px;
 }
 body.light-mode{
 --bg-gradient-start:#fff0f5;--bg-gradient-end:#ffe4ec;--card-bg:rgba(255,240,245,0.9);
@@ -40,18 +41,22 @@ body {
   background: linear-gradient(145deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   position: fixed;
   top: 0; left: 0; right: 0;
+  bottom: 0;
   overflow: hidden;
   color: var(--text-primary);
   transition: background 0.3s;
 }
 #appScrollRoot {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
+  padding-bottom: calc(var(--player-height) + var(--safe-bottom) + 12px);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
 }
@@ -62,7 +67,7 @@ body {
 
 .login-container{
   position:fixed;
-  top:0; left:0; right:0;
+  top:0; left:0; right:0; bottom:0;
   background:linear-gradient(145deg,#1a0b14 0%,#2d1a24 100%);
   display:flex;justify-content:center;align-items:center;
   overflow:hidden;
@@ -120,25 +125,28 @@ body {
 .player-bar{
   position:fixed;
   bottom:0;left:0;width:100%;
+  height: var(--player-height);
   background:var(--player-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  padding:12px 16px;
-  padding-bottom: calc(12px + var(--safe-bottom));
-  display:flex;align-items:center;gap:12px;
+  padding:8px 16px;
+  padding-bottom: calc(8px + var(--safe-bottom));
+  display:flex;
+  align-items:center;
+  gap:12px;
   z-index:999;
   border-top:1px solid var(--border-color);
   padding-left: calc(16px + var(--safe-left));
   padding-right: calc(16px + var(--safe-right));
+  box-sizing: border-box;
 }
-.main-container { padding-bottom: calc(90px + var(--safe-bottom)); }
 .player-cover{width:48px;height:48px;border-radius:14px;object-fit:cover;background:linear-gradient(145deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .player-info{flex:1;min-width:0;}
 .player-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .player-artist{font-size:10px;color:var(--text-secondary);margin-top:2px;}
-.player-controls{display:flex;align-items:center;gap:6px;}
-.control-btn{background:transparent;border:none;color:var(--text-secondary);font-size:18px;cursor:pointer;transition:all 0.2s;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-.control-btn.play-pause{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-size:20px;width:50px;height:50px;box-shadow:0 4px 12px var(--accent-glow);}
+.player-controls{display:flex;align-items:center;gap:4px;}
+.control-btn{background:transparent;border:none;color:var(--text-secondary);font-size:18px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.control-btn.play-pause{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-size:20px;width:46px;height:46px;box-shadow:0 4px 12px var(--accent-glow);}
 .progress-container{position:absolute;top:-3px;left:0;width:100%;height:3px;background:var(--accent-glow);cursor:pointer;}
 .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));width:0%;transition:width 0.1s linear;border-radius:2px;}
 .time-display{position:absolute;top:-16px;font-size:9px;color:var(--text-secondary);font-weight:600;}
@@ -147,19 +155,27 @@ body {
 .info-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:20px;padding:16px 18px;margin-bottom:14px;}
 .info-card h3{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:10px;}
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color);}
+.setting-row:last-child{border-bottom:none;}
 .setting-label{font-size:13px;color:var(--text-primary);font-weight:600;}
+.setting-desc{font-size:11px;color:var(--text-secondary);margin-top:2px;}
 .toggle-wrap{position:relative;width:44px;height:24px;flex-shrink:0;}
 .toggle-wrap input{opacity:0;width:0;height:0;}
 .toggle-slider{position:absolute;inset:0;background:rgba(255,105,180,0.2);border-radius:24px;cursor:pointer;transition:0.3s;}
 .toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:0.3s;}
 .toggle-wrap input:checked + .toggle-slider{background:linear-gradient(135deg,var(--accent),var(--accent-dark));}
 .toggle-wrap input:checked + .toggle-slider:before{transform:translateX(20px);}
+.range-row{padding:12px 0;border-bottom:1px solid var(--border-color);}
+.range-row label{font-size:13px;color:var(--text-primary);font-weight:600;display:block;margin-bottom:8px;}
+.range-row input[type=range]{width:100%;accent-color:var(--accent);}
 .btn-group{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .opt-btn{padding:6px 12px;border-radius:30px;border:none;background:rgba(255,105,180,0.15);color:var(--text-secondary);font-size:12px;cursor:pointer;transition:all 0.2s;}
+.opt-btn:hover{background:rgba(255,105,180,0.3);}
 .opt-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;}
 .danger-btn{background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;}
 .settings-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:10000;padding:var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);}
 .settings-modal-content{background:var(--card-bg);padding:24px;border-radius:32px;width:85%;max-width:340px;border:1px solid var(--border-color);max-height:85vh;overflow-y:auto;}
+.settings-modal-content h3{color:var(--accent);margin-bottom:20px;text-align:center;}
+.close-settings{width:100%;padding:12px;border-radius:40px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;cursor:pointer;margin-top:16px;}
 .empty-state{text-align:center;padding:40px 16px;color:var(--text-secondary);opacity:0.6;font-size:13px;background:var(--card-bg);border-radius:28px;}
 @media(max-width:380px){.toolbar{gap:6px;}.theme-btn{padding:4px 7px;font-size:14px;}}
 </style>
@@ -180,27 +196,38 @@ body {
 <div id="appScrollRoot" style="display:none;">
   <div class="main-container" id="mainContainer">
     <div class="toolbar"><div class="theme-toggle"><button class="theme-btn" data-theme="pink">🌸</button><button class="theme-btn" data-theme="light">☀️</button><button class="theme-btn" data-theme="dark">🌙</button></div><div class="search-box"><input type="text" id="searchInput" placeholder="🔍 搜尋歌曲..."></div><button class="logout-btn" id="logoutBtn">🚪 登出</button></div>
-    <div class="app-header"><h1>🌷 粉粉音樂盒</h1><p id="welcomeMsg">自動雲端同步 · 跨裝置聆聽</p></div>
+    <div class="app-header"><h1>🌷 粉粉音樂盒</h1><p id="welcomeMsg">自動雲端同步 · PWA自動下一首</p></div>
     <div class="tab-container"><button class="tab-btn active" data-tab="my-songs">🎀 我的歌</button><button class="tab-btn" data-tab="liked-songs">💖 喜愛</button><button class="tab-btn" data-tab="history">📖 記錄</button><button class="tab-btn" data-tab="guide">📘 說明</button><button class="tab-btn" data-tab="settings-tab">⚙️ 設定</button></div>
     
     <div class="tab-content active" id="my-songs">
       <div class="upload-area" id="uploadArea"><div class="upload-icon">🌷📤</div><div class="upload-text">點擊上傳 MP3 (上限 10MB)</div><div class="upload-sub">自動儲存本地 + 同步雲端 · 可選封面</div><input type="file" id="file-input" accept="audio/mp3,audio/mpeg"><input type="file" id="cover-input" accept="image/jpeg,image/png,image/gif"></div>
-      <div class="sync-status" id="syncStatus">☁️ 點擊手動同步</div>
+      <div class="sync-status" id="syncStatus">☁️ 偵測雲端空間中...</div>
       <div class="song-list" id="mySongList"></div>
     </div>
     <div class="tab-content" id="liked-songs"><div class="song-list" id="likedSongList"></div></div>
     <div class="tab-content" id="history"><div class="song-list" id="historyList"></div></div>
-    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 自動雲端同步</h3><p>上傳歌曲會自動儲存至本地 IndexedDB，並立即上傳至 Supabase 雲端！<br>在不同裝置登入同一帳號，會自動下載所有歌曲。</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>📤 上傳限制</h3><ul><li>單一檔案上限 <strong>10MB</strong></li><li>支援 MP3 格式</li><li>可選 JPG/PNG 封面</li></ul></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒 / ⏩ 快進15秒</li><li>▶️/⏸️ 播放/暫停</li><li>⏭️ 下一首 (自動連續播放)</li><li>⚙️ 設定分頁調整音量/速度/模式</li></ul></div></div>
-    <div class="tab-content" id="settings-tab"><div class="info-card"><h3>🎨 外觀</h3><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div><div class="info-card"><h3>✨ 特效</h3><div class="setting-row"><div><div class="setting-label">愛心點擊特效</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">自動播放下一首</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div></div><div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有資料(刪除本地)</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div></div></div>
+    <div class="tab-content" id="guide"><div class="info-card"><h3>🌷 PWA 優化</h3><p>✓ 歌曲結束會自動播放下一首（無需點擊畫面）<br>✓ 播放器貼合底部無多餘空白<br>✓ 支援離線播放<br>✓ 可安裝到桌面使用</p></div><div class="info-card"><h3>🎵 如何取得 MP3？</h3><p>推薦使用 <a href="https://mp3cow.com/" target="_blank">MP3Cow</a> 免費轉換 YouTube 為 MP3。</p></div><div class="info-card"><h3>🎧 播放器功能</h3><ul><li>⏪ 快退15秒 / ⏩ 快進15秒</li><li>▶️/⏸️ 播放/暫停 (支援淡入淡出)</li><li>⏭️ 下一首 (自動連續播放)</li><li>⚙️ 快速設定 (點擊播放器⚙️按鈕)</li></ul></div></div>
+    <div class="tab-content" id="settings-tab">
+      <div class="info-card"><h3>🎨 外觀主題</h3><div class="setting-row"><div><div class="setting-label">主題選擇</div><div class="setting-desc">切換粉色 / 亮色 / 暗色</div></div><div class="btn-group"><button class="opt-btn theme-opt" data-theme="pink">🌸 粉色</button><button class="opt-btn theme-opt" data-theme="light">☀️ 亮色</button><button class="opt-btn theme-opt" data-theme="dark">🌙 暗色</button></div></div></div>
+      <div class="info-card"><h3>✨ 特效與動畫</h3><div class="setting-row"><div><div class="setting-label">愛心點擊特效</div><div class="setting-desc">點擊畫面出現愛心</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleHeart" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">封面旋轉動畫</div><div class="setting-desc">播放時封面旋轉</div></div><label class="toggle-wrap"><input type="checkbox" id="toggleRotate" checked><span class="toggle-slider"></span></label></div></div>
+      <div class="info-card"><h3>🎧 播放設定</h3><div class="setting-row"><div><div class="setting-label">自動播放下一首</div><div class="setting-desc">歌曲結束自動繼續</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">播放時淡入效果</div><div class="setting-desc">讓音樂更柔軟進場</div></div><label class="toggle-wrap"><input type="checkbox" id="fadeEnabled" checked><span class="toggle-slider"></span></label></div>
+        <div class="range-row"><label>🔊 音量 <span id="defaultVolDisplay">70</span>%</label><input type="range" id="defaultVolume" min="0" max="100" value="70" step="1"></div>
+        <div class="range-row"><label>⚡ 播放速度 <span id="defaultSpeedDisplay">1.0</span>x</label><div class="btn-group"><button class="opt-btn speed-preset" data-speed="0.5">0.5x</button><button class="opt-btn speed-preset" data-speed="0.75">0.75x</button><button class="opt-btn speed-preset" data-speed="1">1x</button><button class="opt-btn speed-preset" data-speed="1.25">1.25x</button><button class="opt-btn speed-preset" data-speed="1.5">1.5x</button><button class="opt-btn speed-preset" data-speed="2">2x</button></div></div>
+      </div>
+      <div class="info-card"><h3>🔄 播放模式</h3><div class="setting-row"><div><div class="setting-label">預設播放模式</div><div class="setting-desc">順序 / 隨機 / 單曲循環</div></div><div class="btn-group"><button class="opt-btn mode-preset" data-mode="sequential">順序</button><button class="opt-btn mode-preset" data-mode="shuffle">隨機</button><button class="opt-btn mode-preset" data-mode="loop">循環</button></div></div></div>
+      <div class="info-card"><h3>⏰ 睡眠定時</h3><div class="setting-row"><div><div class="setting-label">設定定時關閉音樂</div><div class="setting-desc" id="sleepTimerStatus">目前：關閉</div></div><div class="btn-group"><button class="opt-btn sleep-preset" data-time="0">關閉</button><button class="opt-btn sleep-preset" data-time="10">10分</button><button class="opt-btn sleep-preset" data-time="20">20分</button><button class="opt-btn sleep-preset" data-time="30">30分</button><button class="opt-btn sleep-preset" data-time="60">60分</button></div></div></div>
+      <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div></div>
+    </div>
   </div>
 </div>
 
 <div class="player-bar"><div class="progress-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div><div class="time-display time-current" id="timeCurrent">0:00</div><div class="time-display time-total" id="timeTotal">0:00</div></div><img class="player-cover" id="playerCover" src="" alt="封面" style="display:none;"><div class="player-cover" id="playerCoverIcon">🌷</div><div class="player-info"><div class="player-title" id="playerTitle">未播放</div><div class="player-artist" id="playerArtist">選擇歌曲開始</div></div><div class="player-controls"><button class="control-btn" id="settingsBtn">⚙️</button><button class="control-btn" id="prev15Btn">⏪</button><button class="control-btn play-pause" id="playPauseBtn">▶️</button><button class="control-btn" id="next15Btn">⏩</button><button class="control-btn" id="nextTrackBtn">⏭️</button></div></div>
-<audio id="audioPlayer"></audio>
+<audio id="audioPlayer" webkit-playsinline playsinline></audio>
 
 <script>
 // 設定上限 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const TOTAL_CLOUD_LIMIT = 1024 * 1024 * 1024;
 
 const SUPABASE_URL = "https://ghhpzkglrdjmpfntnntv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uXo17Iv43dO1XSLdqfUjFw_3RYBww96";
@@ -211,6 +238,7 @@ let likedSongs = [], playHistory = [];
 let audio = document.getElementById('audioPlayer');
 let heartEnabled=true, rotateEnabled=true, autoNextEnabled=true, fadeEnabled=true;
 let currentVolume=0.7, currentSpeed=1.0, playMode='sequential', sleepTimer=null;
+let isPlayingNext = false; // 防止重複觸發
 
 let db = null;
 const DB_NAME = 'PinkMusicDB';
@@ -276,10 +304,10 @@ async function getUserMeta() {
     const store = tx.objectStore(STORE_META);
     const req = store.get(currentUser);
     req.onsuccess = () => {
-      const data = req.result ? req.result.data : { liked: [], history: [] };
+      const data = req.result ? req.result.data : { liked: [], history: [], settings: {} };
       resolve(data);
     };
-    req.onerror = () => resolve({ liked: [], history: [] });
+    req.onerror = () => resolve({ liked: [], history: [], settings: {} });
   });
 }
 
@@ -297,12 +325,71 @@ let globalSongs = [];
 
 function setSyncStatus(text, isSyncing = false) {
   const el = document.getElementById('syncStatus');
-  el.innerText = text;
-  if (isSyncing) el.classList.add('syncing');
-  else el.classList.remove('syncing');
+  if (el) {
+    el.innerText = text;
+    if (isSyncing) el.classList.add('syncing');
+    else el.classList.remove('syncing');
+  }
 }
 
-// 單首歌曲上傳到雲端
+function setVolume(vol) {
+  currentVolume = Math.max(0, Math.min(1, vol));
+  audio.volume = currentVolume;
+  document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100);
+  const volSlider = document.getElementById('defaultVolume');
+  if (volSlider) volSlider.value = Math.round(currentVolume * 100);
+}
+
+function setSpeed(speed) {
+  currentSpeed = speed;
+  audio.playbackRate = currentSpeed;
+  document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
+  document.querySelectorAll('.speed-preset').forEach(btn => {
+    if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+async function getCloudUsedBytes() {
+  if (isGuest) return 0;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=size`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) throw new Error('查詢失敗');
+    const songs = await res.json();
+    const total = songs.reduce((sum, song) => sum + (song.size || 0), 0);
+    return total;
+  } catch(e) {
+    console.error('取得雲端容量失敗:', e);
+    return -1;
+  }
+}
+
+async function updateCloudStorageDisplay() {
+  if (isGuest) {
+    setSyncStatus('🌙 訪客模式 · 僅本地儲存', false);
+    return;
+  }
+  
+  const usedBytes = await getCloudUsedBytes();
+  
+  if (usedBytes === -1) {
+    setSyncStatus('☁️ 無法取得雲端容量 · 點擊重試', false);
+    return;
+  }
+  
+  const usedMB = (usedBytes / 1024 / 1024).toFixed(1);
+  const percent = (usedBytes / TOTAL_CLOUD_LIMIT * 100).toFixed(1);
+  const localTotal = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
+  const localMB = (localTotal / 1024 / 1024).toFixed(1);
+  
+  setSyncStatus(`💾 本地 ${localMB}MB / ☁️ 雲端 ${usedMB}MB / 1024MB (${percent}%) · 點擊同步`, false);
+}
+
 async function uploadSongToCloud(song) {
   if (isGuest) return false;
   try {
@@ -321,7 +408,6 @@ async function uploadSongToCloud(song) {
   }
 }
 
-// 從雲端拉取所有歌曲
 async function pullCloudToLocal() {
   if (isGuest) return;
   setSyncStatus('📥 下載雲端歌曲...', true);
@@ -350,11 +436,8 @@ async function pullCloudToLocal() {
     if (addedCount > 0) {
       await loadLocalAndRender();
       setSyncStatus(`✅ 新增 ${addedCount} 首雲端歌曲`, false);
-      setTimeout(() => updateLocalStorageDisplay(), 2000);
-    } else {
-      setSyncStatus('🌐 雲端已是最新', false);
-      setTimeout(() => updateLocalStorageDisplay(), 1500);
     }
+    await updateCloudStorageDisplay();
   } catch(e) { 
     console.error(e);
     setSyncStatus('❌ 雲端拉取失敗，檢查網路後點擊重試', false); 
@@ -379,19 +462,64 @@ async function loadLocalAndRender() {
   const meta = await getUserMeta();
   likedSongs = meta.liked || [];
   playHistory = meta.history || [];
+  if (meta.settings) {
+    if (meta.settings.volume !== undefined) currentVolume = meta.settings.volume;
+    if (meta.settings.speed !== undefined) currentSpeed = meta.settings.speed;
+    if (meta.settings.playMode !== undefined) playMode = meta.settings.playMode;
+    if (meta.settings.autoNext !== undefined) autoNextEnabled = meta.settings.autoNext;
+    if (meta.settings.fadeEnabled !== undefined) fadeEnabled = meta.settings.fadeEnabled;
+  }
+  audio.volume = currentVolume;
+  audio.playbackRate = currentSpeed;
+  
+  document.getElementById('autoNext').checked = autoNextEnabled;
+  document.getElementById('fadeEnabled').checked = fadeEnabled;
+  document.getElementById('defaultVolume').value = Math.round(currentVolume * 100);
+  document.getElementById('defaultVolDisplay').innerText = Math.round(currentVolume * 100);
+  document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
+  
+  document.querySelectorAll('.speed-preset').forEach(btn => {
+    if (Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  document.querySelectorAll('.mode-preset').forEach(btn => {
+    if (btn.dataset.mode === playMode) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
   renderAll();
-  updateLocalStorageDisplay();
+  await updateCloudStorageDisplay();
 }
 
-function updateLocalStorageDisplay() {
-  let total = globalSongs.reduce((acc, s) => acc + (s.size || 0), 0);
-  setSyncStatus(`💾 本地 ${(total/1024/1024).toFixed(1)} MB / ${globalSongs.length} 首歌 · 點擊同步雲端`, false);
+async function saveSettings() {
+  if (isGuest) return;
+  const meta = await getUserMeta();
+  meta.settings = {
+    volume: currentVolume,
+    speed: currentSpeed,
+    playMode: playMode,
+    autoNext: autoNextEnabled,
+    fadeEnabled: fadeEnabled
+  };
+  await saveUserMeta({ liked: likedSongs, history: playHistory, settings: meta.settings });
 }
 
-// 上傳新歌曲 (自動同步雲端)
 async function uploadNewSong(file, coverFile) {
   if (isGuest) { alert('訪客無法上傳'); return; }
   if (file.size > MAX_FILE_SIZE) { alert(`檔案超過 ${MAX_FILE_SIZE/1024/1024}MB 限制！`); return; }
+  
+  const usedBytes = await getCloudUsedBytes();
+  if (usedBytes !== -1 && (usedBytes + file.size) > TOTAL_CLOUD_LIMIT) {
+    alert(`雲端空間不足！目前使用 ${(usedBytes/1024/1024).toFixed(1)}MB，上限 ${(TOTAL_CLOUD_LIMIT/1024/1024).toFixed(0)}MB`);
+    return;
+  }
   
   const id = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
   let coverData = null;
@@ -422,10 +550,9 @@ async function uploadNewSong(file, coverFile) {
   } else {
     setSyncStatus('⚠️ 雲端上傳失敗，稍後可點擊同步', false);
   }
-  setTimeout(() => updateLocalStorageDisplay(), 2000);
+  await updateCloudStorageDisplay();
 }
 
-// 刪除歌曲 (同步刪除雲端)
 async function deleteSong(id) {
   if (!confirm('刪除歌曲將同時刪除本地與雲端')) return;
   setSyncStatus('🗑️ 刪除中...', true);
@@ -439,10 +566,9 @@ async function deleteSong(id) {
   await loadLocalAndRender();
   if (globalSongs[currentSongIndex]?.id === id) { audio.pause(); currentSongIndex = -1; }
   setSyncStatus('✅ 已刪除', false);
-  setTimeout(() => updateLocalStorageDisplay(), 1000);
+  await updateCloudStorageDisplay();
 }
 
-// 編輯歌名 (同步更新雲端)
 async function editSongName(id, newName) {
   const song = globalSongs.find(s => s.id === id);
   if(!song) return;
@@ -458,7 +584,7 @@ async function editSongName(id, newName) {
   } catch(e) {}
   await loadLocalAndRender();
   setSyncStatus('✅ 已更新', false);
-  setTimeout(() => updateLocalStorageDisplay(), 1000);
+  await updateCloudStorageDisplay();
 }
 
 async function toggleLike(id) {
@@ -473,14 +599,68 @@ function addToHistory(song) {
   saveUserMeta({ liked: likedSongs, history: playHistory });
 }
 
+function fadeIn(dur=500) { 
+  if(!fadeEnabled) { 
+    audio.volume = currentVolume; 
+    return; 
+  } 
+  audio.volume = 0; 
+  let start = null; 
+  function step(ts) { 
+    if(!start) start = ts; 
+    let p = Math.min(1, (ts-start)/dur); 
+    audio.volume = p * currentVolume; 
+    if(p<1) requestAnimationFrame(step); 
+  } 
+  requestAnimationFrame(step); 
+}
+
+function fadeOut(dur, cb) { 
+  if(!fadeEnabled) { 
+    audio.pause(); 
+    if(cb) cb(); 
+    return; 
+  } 
+  let start=null; 
+  function step(ts) { 
+    if(!start) start=ts; 
+    let p=Math.max(0,1-(ts-start)/dur); 
+    audio.volume = p * currentVolume; 
+    if(p>0) requestAnimationFrame(step); 
+    else { 
+      audio.pause(); 
+      if(cb) cb(); 
+    } 
+  } 
+  requestAnimationFrame(step); 
+}
+
 function playSong(index) {
   if(index < 0 || index >= globalSongs.length) return;
   const s = globalSongs[index];
   currentSongIndex = index;
   audio.src = s.url;
   audio.playbackRate = currentSpeed;
-  audio.volume = currentVolume;
-  audio.play().catch(e=>console.log);
+  audio.volume = 0;
+  
+  // 使用 Promise 處理播放，確保在 PWA 模式下也能正常
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      fadeIn();
+    }).catch(e => {
+      console.log('自動播放被阻擋，需要使用者互動:', e);
+      // 在 PWA 模式下，如果被阻擋，顯示提示
+      if (e.name === 'NotAllowedError') {
+        const tip = document.createElement('div');
+        tip.innerText = '🎵 點擊播放按鈕開始聆聽';
+        tip.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#ff69b4;padding:8px 16px;border-radius:30px;font-size:12px;z-index:10000;';
+        document.body.appendChild(tip);
+        setTimeout(() => tip.remove(), 2000);
+      }
+    });
+  }
+  
   playPauseBtn.innerText = '⏸️';
   playerTitle.innerText = s.name;
   playerArtist.innerText = '🎀 ' + (s.uploader || '未知');
@@ -498,36 +678,65 @@ function getCurrentList() {
 }
 
 function playNext() {
+  if (isPlayingNext) return;
   if (!autoNextEnabled) return;
+  
   const list = getCurrentList();
   if (!list.length) return;
+  
   const cid = globalSongs[currentSongIndex]?.id;
   const pos = list.findIndex(s => s.id === cid);
   let nextIdx;
+  
   if (playMode === 'shuffle') {
     let newPos;
     do { newPos = Math.floor(Math.random() * list.length); } while (list.length > 1 && newPos === pos);
     nextIdx = newPos;
+  } else if (playMode === 'loop') {
+    nextIdx = pos;
   } else {
     nextIdx = (pos + 1) % list.length;
   }
+  
   const targetId = list[nextIdx]?.id;
   const origIdx = globalSongs.findIndex(s => s.id === targetId);
-  if (origIdx !== -1) playSong(origIdx);
+  
+  if (origIdx !== -1) {
+    isPlayingNext = true;
+    if (playMode === 'loop' && origIdx === currentSongIndex) {
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log);
+      setTimeout(() => { isPlayingNext = false; }, 100);
+    } else {
+      playSong(origIdx);
+      setTimeout(() => { isPlayingNext = false; }, 500);
+    }
+  } else {
+    isPlayingNext = false;
+  }
 }
 
+// 修復 PWA 自動下一首問題 - 使用 ended 事件 + 延遲播放
 audio.addEventListener('ended', () => {
-  if (playMode === 'loop' && audio.currentTime > 0) {
+  if (playMode === 'loop') {
     audio.currentTime = 0;
-    audio.play().catch(e=>console.log);
+    // 在 PWA 模式下需要稍微延遲才能自動播放
+    setTimeout(() => {
+      audio.play().catch(e => console.log('循環播放被阻擋', e));
+    }, 50);
   } else {
-    playNext();
+    // 同樣需要延遲以繞過 PWA 自動播放限制
+    setTimeout(() => {
+      playNext();
+    }, 100);
   }
 });
 
 function renderAll() { renderSongs(); renderLiked(); renderHistory(); }
+
 function renderSongs() {
-  const el = document.getElementById('mySongList'); el.innerHTML = '';
+  const el = document.getElementById('mySongList'); if(!el) return;
+  el.innerHTML = '';
   let list = searchKeyword ? globalSongs.filter(s => s.name.toLowerCase().includes(searchKeyword)) : globalSongs;
   if(!list.length) { el.innerHTML = '<div class="empty-state">🌷 無歌曲，上傳第一首！</div>'; return; }
   list.forEach((s, idx) => {
@@ -547,10 +756,25 @@ function renderSongs() {
     el.appendChild(div);
   });
 }
-function renderLiked(){ const el=document.getElementById('likedSongList'); el.innerHTML=''; const list=globalSongs.filter(s=>likedSongs.includes(s.id)); if(!list.length){el.innerHTML='<div class="empty-state">💖 尚無喜愛</div>';return;} list.forEach(s=>{const idx=globalSongs.findIndex(x=>x.id===s.id); const div=document.createElement('div'); div.className='song-item'+(currentSongIndex===idx?' now-playing':''); div.innerHTML=(s.coverUrl?`<img src="${s.coverUrl}" class="song-cover-img">`:'<div class="song-cover-img">💖</div>')+`<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div></div><button class="like-btn active">💖</button>`; div.querySelector('.like-btn').onclick=()=>toggleLike(s.id); div.onclick=()=>playSong(idx); el.appendChild(div);}); }
-function renderHistory(){const el=document.getElementById('historyList'); el.innerHTML=''; if(!playHistory.length){el.innerHTML='<div class="empty-state">📖 無記錄</div>';return;} playHistory.slice(0,30).forEach(h=>{const div=document.createElement('div'); div.className='song-item'; div.innerHTML=`<div class="song-cover-img">📖</div><div class="song-info"><div class="song-name">${escapeHtml(h.name)}</div><div class="song-uploader">${h.time}</div></div>`; div.onclick=()=>{const i=globalSongs.findIndex(x=>x.id===h.id); if(i!==-1) playSong(i);}; el.appendChild(div);});}
+
+function renderLiked(){ 
+  const el=document.getElementById('likedSongList'); if(!el) return;
+  el.innerHTML=''; 
+  const list=globalSongs.filter(s=>likedSongs.includes(s.id)); 
+  if(!list.length){el.innerHTML='<div class="empty-state">💖 尚無喜愛</div>';return;} 
+  list.forEach(s=>{const idx=globalSongs.findIndex(x=>x.id===s.id); const div=document.createElement('div'); div.className='song-item'+(currentSongIndex===idx?' now-playing':''); div.innerHTML=(s.coverUrl?`<img src="${s.coverUrl}" class="song-cover-img">`:'<div class="song-cover-img">💖</div>')+`<div class="song-info"><div class="song-name">${escapeHtml(s.name)}</div></div><button class="like-btn active">💖</button>`; div.querySelector('.like-btn').onclick=()=>toggleLike(s.id); div.onclick=()=>playSong(idx); el.appendChild(div);}); 
+}
+
+function renderHistory(){
+  const el=document.getElementById('historyList'); if(!el) return;
+  el.innerHTML=''; 
+  if(!playHistory.length){el.innerHTML='<div class="empty-state">📖 無記錄</div>';return;} 
+  playHistory.slice(0,30).forEach(h=>{const div=document.createElement('div'); div.className='song-item'; div.innerHTML=`<div class="song-cover-img">📖</div><div class="song-info"><div class="song-name">${escapeHtml(h.name)}</div><div class="song-uploader">${h.time}</div></div>`; div.onclick=()=>{const i=globalSongs.findIndex(x=>x.id===h.id); if(i!==-1) playSong(i);}; el.appendChild(div);});
+}
+
 function escapeHtml(str){ return (str||'').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 function fmtSize(b){ if(!b) return ''; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
 
 // 事件綁定
 document.getElementById('uploadArea').onclick = () => document.getElementById('file-input').click();
@@ -565,6 +789,7 @@ document.getElementById('clearHistoryBtn').onclick = async () => { if(confirm('�
 document.getElementById('clearLikedBtn').onclick = async () => { if(confirm('清除喜愛')){ likedSongs=[]; await saveUserMeta({liked:[], history:playHistory}); renderAll(); }};
 document.getElementById('resetAllBtn').onclick = async () => { if(confirm('刪除所有本地歌曲與資料？不可復原')){ indexedDB.deleteDatabase(DB_NAME); localStorage.clear(); location.reload(); }};
 
+// 播放器事件
 let isDragging=false;
 function setProgress(e){ const rect=progressContainer.getBoundingClientRect(); let x=e.clientX; if(e.touches) x=e.touches[0].clientX; const p=Math.max(0,Math.min(1,(x-rect.left)/rect.width)); progressBar.style.width=p*100+'%'; if(audio.duration) audio.currentTime=p*audio.duration; }
 progressContainer.addEventListener('mousedown',e=>{isDragging=true; setProgress(e);});
@@ -574,35 +799,195 @@ progressContainer.addEventListener('touchstart',e=>{isDragging=true; setProgress
 document.addEventListener('touchmove',e=>{if(isDragging) setProgress(e.touches[0]);},{passive:true});
 document.addEventListener('touchend',()=>isDragging=false);
 audio.addEventListener('timeupdate',()=>{ if(!audio.duration||isDragging) return; progressBar.style.width=(audio.currentTime/audio.duration*100)+'%'; timeCurrent.innerText=fmtTime(audio.currentTime); timeTotal.innerText=fmtTime(audio.duration);});
-playPauseBtn.onclick = () => { if(!globalSongs.length){alert('無歌曲');return;} if(audio.paused){ if(!audio.src||currentSongIndex===-1) playSong(0); else{ audio.play(); } playPauseBtn.innerText='⏸️'; if(rotateEnabled) playerCover.classList.add('rotating'); } else { audio.pause(); playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }};
+playPauseBtn.onclick = () => { 
+  if(!globalSongs.length){alert('無歌曲');return;} 
+  if(audio.paused){ 
+    if(!audio.src||currentSongIndex===-1) playSong(0); 
+    else{ 
+      audio.play(); 
+      if(fadeEnabled) fadeIn();
+      else audio.volume = currentVolume;
+    } 
+    playPauseBtn.innerText='⏸️'; 
+    if(rotateEnabled) playerCover.classList.add('rotating'); 
+  } else { 
+    if(fadeEnabled) fadeOut(300,()=>{ playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); });
+    else { audio.pause(); playPauseBtn.innerText='▶️'; if(rotateEnabled) playerCover.classList.remove('rotating'); }
+  } 
+};
 prev15Btn.onclick = () => audio.currentTime = Math.max(0, audio.currentTime-15);
 next15Btn.onclick = () => audio.currentTime = Math.min(audio.duration||0, audio.currentTime+15);
-nextTrackBtn.onclick = playNext;
-function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
-settingsBtn.onclick = () => { alert('⚙️ 播放設定可在下方「設定」分頁調整\n• 音量/速度/播放模式\n• 自動下一首開關\n• 睡眠定時等功能'); };
+nextTrackBtn.onclick = () => playNext();
 
-document.querySelectorAll('.theme-opt').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
-document.getElementById('toggleHeart').onchange=e=>heartEnabled=e.target.checked;
-document.getElementById('toggleRotate').onchange=e=>{ rotateEnabled=e.target.checked; if(!rotateEnabled) playerCover.classList.remove('rotating'); else if(!audio.paused) playerCover.classList.add('rotating');};
-document.getElementById('autoNext').onchange=e=>{ autoNextEnabled=e.target.checked; };
-function setTheme(theme){ document.body.classList.remove('light-mode','dark-mode'); if(theme==='light') document.body.classList.add('light-mode'); if(theme==='dark') document.body.classList.add('dark-mode'); localStorage.setItem('theme',theme); }
+// 快速設定彈窗
+document.getElementById('settingsBtn').onclick = () => {
+  const modal = document.createElement('div'); modal.className = 'settings-modal';
+  modal.innerHTML = `<div class="settings-modal-content">
+    <h3>⚙️ 快速設定</h3>
+    <div class="range-row"><label>🔊 音量 <span id="quickVolDisplay">${Math.round(currentVolume*100)}</span>%</label><input type="range" id="quickVolume" min="0" max="100" value="${Math.round(currentVolume*100)}" step="1"></div>
+    <div class="range-row"><label>⚡ 播放速度 <span id="quickSpeedDisplay">${currentSpeed.toFixed(2)}</span>x</label><div class="btn-group"><button class="opt-btn quick-speed" data-speed="0.5">0.5x</button><button class="opt-btn quick-speed" data-speed="0.75">0.75x</button><button class="opt-btn quick-speed" data-speed="1">1x</button><button class="opt-btn quick-speed" data-speed="1.25">1.25x</button><button class="opt-btn quick-speed" data-speed="1.5">1.5x</button><button class="opt-btn quick-speed" data-speed="2">2x</button></div></div>
+    <div class="range-row"><label>🔄 播放模式</label><div class="btn-group"><button class="opt-btn quick-mode ${playMode==='sequential'?'active':''}" data-mode="sequential">順序</button><button class="opt-btn quick-mode ${playMode==='shuffle'?'active':''}" data-mode="shuffle">隨機</button><button class="opt-btn quick-mode ${playMode==='loop'?'active':''}" data-mode="loop">循環</button></div></div>
+    <div class="range-row"><label>⏰ 睡眠定時</label><div class="btn-group"><button class="opt-btn sleep-quick" data-time="0">關閉</button><button class="opt-btn sleep-quick" data-time="10">10分</button><button class="opt-btn sleep-quick" data-time="20">20分</button><button class="opt-btn sleep-quick" data-time="30">30分</button><button class="opt-btn sleep-quick" data-time="60">60分</button></div><div id="quickSleepStatus" style="font-size:11px;margin-top:6px;color:var(--accent);">${sleepTimer?'⏲️ 定時中':'⚡ 關閉'}</div></div>
+    <button class="close-settings">關閉</button>
+  </div>`;
+  document.body.appendChild(modal);
+  
+  const volSlider = modal.querySelector('#quickVolume');
+  volSlider.oninput = (e) => { 
+    currentVolume = e.target.value/100; 
+    audio.volume = currentVolume; 
+    modal.querySelector('#quickVolDisplay').innerText = e.target.value;
+    document.getElementById('defaultVolume').value = e.target.value;
+    document.getElementById('defaultVolDisplay').innerText = e.target.value;
+    saveSettings();
+  };
+  
+  modal.querySelectorAll('.quick-speed').forEach(btn => { 
+    btn.onclick = () => { 
+      currentSpeed = parseFloat(btn.dataset.speed); 
+      audio.playbackRate = currentSpeed;
+      modal.querySelector('#quickSpeedDisplay').innerText = currentSpeed.toFixed(2); 
+      modal.querySelectorAll('.quick-speed').forEach(b=>b.classList.remove('active')); 
+      btn.classList.add('active'); 
+      document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2);
+      document.querySelectorAll('.speed-preset').forEach(b=>{
+        if(Math.abs(parseFloat(b.dataset.speed) - currentSpeed) < 0.01) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      saveSettings(); 
+    }; 
+    if(Math.abs(parseFloat(btn.dataset.speed) - currentSpeed) < 0.01) btn.classList.add('active');
+  });
+  
+  modal.querySelectorAll('.quick-mode').forEach(btn => { 
+    btn.onclick = () => { 
+      playMode = btn.dataset.mode; 
+      modal.querySelectorAll('.quick-mode').forEach(b=>b.classList.remove('active')); 
+      btn.classList.add('active');
+      document.querySelectorAll('.mode-preset').forEach(b=>{
+        if(b.dataset.mode === playMode) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      saveSettings(); 
+    }; 
+  });
+  
+  modal.querySelectorAll('.sleep-quick').forEach(btn => { 
+    btn.onclick = () => { 
+      const t = parseInt(btn.dataset.time); 
+      setSleepTimer(t); 
+      modal.querySelector('#quickSleepStatus').innerText = t>0 ? `⏲️ ${t}分鐘後暫停` : '⚡ 關閉'; 
+      saveSettings(); 
+    }; 
+  });
+  
+  modal.querySelector('.close-settings').onclick = () => modal.remove();
+};
+
+// 設定分頁事件
+document.getElementById('defaultVolume').oninput = (e) => { 
+  currentVolume = e.target.value/100; 
+  audio.volume = currentVolume; 
+  document.getElementById('defaultVolDisplay').innerText = e.target.value; 
+  saveSettings(); 
+};
+
+document.querySelectorAll('.speed-preset').forEach(btn => { 
+  btn.onclick = () => { 
+    currentSpeed = parseFloat(btn.dataset.speed); 
+    audio.playbackRate = currentSpeed;
+    document.getElementById('defaultSpeedDisplay').innerText = currentSpeed.toFixed(2); 
+    document.querySelectorAll('.speed-preset').forEach(b=>b.classList.remove('active')); 
+    btn.classList.add('active'); 
+    saveSettings(); 
+  }; 
+});
+
+document.querySelectorAll('.mode-preset').forEach(btn => { 
+  btn.onclick = () => { 
+    playMode = btn.dataset.mode; 
+    document.querySelectorAll('.mode-preset').forEach(b=>b.classList.remove('active')); 
+    btn.classList.add('active'); 
+    saveSettings(); 
+  }; 
+});
+
+document.querySelectorAll('.sleep-preset').forEach(btn => { 
+  btn.onclick = () => { 
+    setSleepTimer(parseInt(btn.dataset.time)); 
+    saveSettings(); 
+  }; 
+});
+
+function setSleepTimer(minutes) {
+  if (sleepTimer) clearTimeout(sleepTimer);
+  if (minutes <= 0) {
+    document.getElementById('sleepTimerStatus').innerText = '目前：關閉';
+    return;
+  }
+  document.getElementById('sleepTimerStatus').innerText = `目前：${minutes}分鐘後暫停`;
+  sleepTimer = setTimeout(() => {
+    fadeOut(800, () => {
+      audio.pause();
+      audio.currentTime = 0;
+      playPauseBtn.innerText = '▶️';
+      if(rotateEnabled) playerCover.classList.remove('rotating');
+    });
+    document.getElementById('sleepTimerStatus').innerText = '目前：關閉';
+    sleepTimer = null;
+  }, minutes * 60000);
+}
+
+document.getElementById('toggleHeart').onchange = e => heartEnabled = e.target.checked;
+document.getElementById('toggleRotate').onchange = e => { 
+  rotateEnabled = e.target.checked; 
+  if(!rotateEnabled) playerCover.classList.remove('rotating'); 
+  else if(!audio.paused) playerCover.classList.add('rotating'); 
+};
+document.getElementById('autoNext').onchange = e => { autoNextEnabled = e.target.checked; saveSettings(); };
+document.getElementById('fadeEnabled').onchange = e => { fadeEnabled = e.target.checked; saveSettings(); };
+
+function setTheme(theme){ 
+  document.body.classList.remove('light-mode','dark-mode'); 
+  if(theme==='light') document.body.classList.add('light-mode'); 
+  if(theme==='dark') document.body.classList.add('dark-mode'); 
+  localStorage.setItem('theme',theme); 
+  document.querySelectorAll('.theme-btn, .theme-opt').forEach(b=>{
+    if(b.dataset.theme === theme) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+document.querySelectorAll('.theme-opt, .theme-btn').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
+
 let activeTab='my-songs';
-document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.onclick=()=>{ activeTab=btn.dataset.tab; document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); renderAll(); }; });
+document.querySelectorAll('.tab-btn').forEach(btn=>{ 
+  btn.onclick=()=>{ 
+    activeTab=btn.dataset.tab; 
+    document.querySelectorAll('.tab-btn,.tab-content').forEach(el=>el.classList.remove('active')); 
+    btn.classList.add('active'); 
+    document.getElementById(btn.dataset.tab).classList.add('active'); 
+    renderAll(); 
+  }; 
+});
 document.getElementById('searchInput').oninput = e => { searchKeyword = e.target.value.toLowerCase(); renderSongs(); };
+
 async function initApp() { 
   setTheme(localStorage.getItem('theme')||'pink'); 
   await openDB(); 
   await loadLocalAndRender(); 
-  await pullCloudToLocal();  // 啟動時自動從雲端下載
+  await pullCloudToLocal();
 }
+
 const loginContainer=document.getElementById('loginContainer'), appScrollRoot=document.getElementById('appScrollRoot');
 function doLogin(username,guestMode){ currentUser=username; isGuest=guestMode; loginContainer.style.opacity='0'; setTimeout(()=>{ loginContainer.style.display='none'; appScrollRoot.style.display='block'; document.getElementById('mainContainer').style.display='block'; document.getElementById('welcomeMsg').innerHTML=guestMode?'🌷 訪客模式 · 僅瀏覽':'🎀 歡迎 '+username; initApp(); },500); }
 document.getElementById('loginBtn').onclick=()=>{ const u=document.getElementById('username').value.trim(), p=document.getElementById('password').value.trim(); if(VALID_USERS[u] && VALID_USERS[u]===p) doLogin(u,false); else document.getElementById('errorMsg').style.display='block'; };
 document.getElementById('guestBtn').onclick=()=>doLogin('訪客_'+Math.random().toString(36).substr(2,6),true);
 document.getElementById('logoutBtn').onclick=()=>{ localStorage.removeItem('savedLogin'); location.reload(); };
 try{ const s=JSON.parse(localStorage.getItem('savedLogin')||'null'); if(s&&VALID_USERS[s.username]) doLogin(s.username,false); }catch(e){}
+
 function fixHeight(){ let h=window.innerHeight; document.body.style.height=h+'px'; if(loginContainer) loginContainer.style.height=h+'px'; if(appScrollRoot) appScrollRoot.style.height=h+'px'; }
 fixHeight(); window.addEventListener('resize',fixHeight);
+
 document.addEventListener('click',e=>{ if(heartEnabled){ const h=document.createElement('div'); h.className='heart'; h.innerText=['💖','🌸','💓','💕'][Math.floor(Math.random()*4)]; h.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;color:#ff69b4;font-size:'+(Math.random()*12+12)+'px;'; document.body.appendChild(h); setTimeout(()=>h.remove(),1000); } });
 </script>
 </body>
