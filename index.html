@@ -10,11 +10,11 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/aa340993/123/refs/heads/main/IMG_9717.jpeg">
 <meta name="theme-color" content="#1a0b14">
-<title>🌷 粉粉音樂盒 · 完整雲端版</title>
+<title>🌷 粉粉音樂盒 · 穩定雙向同步</title>
 <style>
+/* 樣式與之前相同，為節省篇幅此處省略，請沿用先前完整樣式 */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft JhengHei','SF Pro Text',sans-serif;
 -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;}
-
 :root{
 --safe-top: env(safe-area-inset-top, 0px);
 --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -59,7 +59,6 @@ body {
 @keyframes heartFly{0%{transform:scale(0) translateY(0);opacity:1;}100%{transform:scale(1) translateY(-80px);opacity:0;}}
 @keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 .player-cover.rotating{animation:rotate 10s linear infinite;}
-
 .login-container{
   position:fixed;
   top:0; left:0; right:0;
@@ -78,7 +77,6 @@ body {
 .login-btn{width:100%;padding:14px;border-radius:40px;border:none;background:linear-gradient(135deg,#ff69b4,#ff1493);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:all 0.2s;}
 .guest-btn{background:transparent!important;border:1px solid #ff69b4!important;margin-top:12px;}
 .error-msg{color:#ff6b6b;text-align:center;margin-top:15px;font-size:13px;display:none;}
-
 .main-container{display:none;min-height:100%;padding:16px 16px 0;max-width:700px;margin:0 auto;}
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap;position:relative;z-index:10;}
 .theme-toggle{background:var(--card-bg);border:1px solid var(--border-color);border-radius:40px;padding:6px 12px;display:flex;gap:6px;backdrop-filter:blur(4px);}
@@ -116,7 +114,6 @@ body {
 .sync-status{text-align:center;font-size:11px;padding:10px;color:var(--text-secondary);background:var(--card-bg);border-radius:60px;margin-bottom:16px;backdrop-filter:blur(4px);border:1px solid var(--border-color);cursor:pointer;transition:all 0.2s;}
 .sync-status.syncing{opacity:0.7; animation:pulse 1s infinite;}
 @keyframes pulse{0%{opacity:0.7;}50%{opacity:1;}100%{opacity:0.7;}}
-
 .player-bar{
   position:fixed;
   bottom:0;left:0;width:100%;
@@ -207,7 +204,7 @@ body {
       <div class="info-card"><h3>🎧 播放設定</h3><div class="setting-row"><div><div class="setting-label">自動播放下一首</div><div class="setting-desc">歌曲結束自動繼續</div></div><label class="toggle-wrap"><input type="checkbox" id="autoNext" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div><div class="setting-label">播放時淡入效果</div><div class="setting-desc">讓音樂更柔軟進場</div></div><label class="toggle-wrap"><input type="checkbox" id="fadeEnabled" checked><span class="toggle-slider"></span></label></div><div class="range-row"><label>🔊 預設音量 <span id="defaultVolDisplay">70</span>%</label><input type="range" id="defaultVolume" min="0" max="100" value="70" step="1"></div><div class="range-row"><label>⚡ 預設播放速度 <span id="defaultSpeedDisplay">1.0</span>x</label><div class="btn-group"><button class="opt-btn speed-preset" data-speed="0.5">0.5x</button><button class="opt-btn speed-preset" data-speed="0.75">0.75x</button><button class="opt-btn speed-preset" data-speed="1">1x</button><button class="opt-btn speed-preset" data-speed="1.25">1.25x</button><button class="opt-btn speed-preset" data-speed="1.5">1.5x</button><button class="opt-btn speed-preset" data-speed="2">2x</button></div></div></div>
       <div class="info-card"><h3>🔄 播放模式</h3><div class="setting-row"><div><div class="setting-label">預設播放模式</div><div class="setting-desc">順序 / 隨機 / 單曲循環</div></div><div class="btn-group"><button class="opt-btn mode-preset" data-mode="sequential">順序</button><button class="opt-btn mode-preset" data-mode="shuffle">隨機</button><button class="opt-btn mode-preset" data-mode="loop">循環</button></div></div></div>
       <div class="info-card"><h3>⏰ 睡眠定時</h3><div class="setting-row"><div><div class="setting-label">設定定時關閉音樂</div><div class="setting-desc" id="sleepTimerStatus">目前：關閉</div></div><div class="btn-group"><button class="opt-btn sleep-preset" data-time="0">關閉</button><button class="opt-btn sleep-preset" data-time="10">10分</button><button class="opt-btn sleep-preset" data-time="20">20分</button><button class="opt-btn sleep-preset" data-time="30">30分</button><button class="opt-btn sleep-preset" data-time="60">60分</button></div></div></div>
-      <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div><div class="setting-row"><div><div class="setting-label">🔧 雲端診斷</div><div class="setting-desc">測試連線與資料表結構</div></div><button class="opt-btn" id="diagnoseBtn">執行診斷</button></div></div>
+      <div class="info-card"><h3>💾 資料管理</h3><div class="setting-row"><div><div class="setting-label">清除播放記錄</div><div class="setting-desc">刪除本機歷史</div></div><button class="opt-btn danger-btn" id="clearHistoryBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">清除喜愛清單</div><div class="setting-desc">取消所有收藏</div></div><button class="opt-btn danger-btn" id="clearLikedBtn">清除</button></div><div class="setting-row"><div><div class="setting-label">重設所有設定</div><div class="setting-desc">恢復預設值</div></div><button class="opt-btn danger-btn" id="resetAllBtn">重設</button></div><div class="setting-row"><div><div class="setting-label">🔧 雲端診斷</div><div class="setting-desc">測試連線與資料表結構</div></div><button class="opt-btn" id="diagnoseBtn">執行診斷</button></div><div class="setting-row"><div><div class="setting-label">📱 環境資訊</div><div class="setting-desc" id="envInfo"></div></div></div>
     </div>
   </div>
 </div>
@@ -216,7 +213,7 @@ body {
 <audio id="audioPlayer"></audio>
 
 <script>
-// ======================== 粉粉音樂盒 - 完整雲端雙向同步版 ========================
+// ======================== 粉粉音樂盒 - 穩定雙向同步版（修復 PWA 誤刪問題） ========================
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const TOTAL_CLOUD_LIMIT = 1024 * 1024 * 1024;
 const SUPABASE_URL = "https://znluvebzyrdmsckkjkoa.supabase.co";
@@ -234,10 +231,12 @@ const DB_VERSION = 1;
 const STORE_SONGS = 'songs';
 const STORE_META = 'userMeta';
 
+// 偵測是否為 PWA 模式
+const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+document.getElementById('envInfo').innerText = isPWA ? '📱 PWA 應用模式' : '🌐 一般網頁模式';
+
 function generateUUID() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -370,28 +369,36 @@ function base64ToBlob(b64, mime='audio/mp3') {
   return new Blob([arr], {type: mime});
 }
 
-// 核心：雙向同步（下載新歌 + 刪除雲端已不存在的本地歌曲）
+// 核心同步：安全版本，絕不在請求失敗時刪除本地歌曲
 async function pullCloudToLocal() {
   if (isGuest) return;
-  setSyncStatus('🔄 同步中 (下載新歌 + 清理已刪除歌曲)...', true);
+  setSyncStatus('🔄 同步中 (取得雲端清單)...', true);
+  let cloudSongs = null;
   try {
-    // 1. 獲取雲端所有歌曲
     const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
-    if (!res.ok) throw new Error('雲端請求失敗');
-    const cloudSongs = await res.json();
-    const cloudIds = new Set(cloudSongs.map(cs => cs.id));
-    
-    // 2. 獲取本地歌曲
-    const localSongs = await getLocalSongs();
-    let addedCount = 0;
-    let deletedCount = 0;
-    
-    // 3. 下載雲端新增的歌曲
-    for (const cs of cloudSongs) {
-      const exists = localSongs.find(l => l.id === cs.id);
-      if (!exists) {
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+    cloudSongs = await res.json();
+    if (!Array.isArray(cloudSongs)) throw new Error('雲端回傳不是陣列');
+  } catch(e) {
+    console.error('雲端請求失敗:', e);
+    setSyncStatus(`❌ 同步失敗：${e.message.substring(0, 80)}。本地歌曲不受影響`, false);
+    showToast('雲端連線失敗，未執行刪除動作', true);
+    return;
+  }
+  
+  // 成功取得雲端清單後，進行新增與刪除
+  setSyncStatus('🔄 比對本地與雲端歌曲...', true);
+  const cloudIds = new Set(cloudSongs.map(cs => cs.id));
+  const localSongs = await getLocalSongs();
+  let addedCount = 0, deletedCount = 0;
+  
+  // 下載雲端新增的歌曲
+  for (const cs of cloudSongs) {
+    const exists = localSongs.find(l => l.id === cs.id);
+    if (!exists) {
+      try {
         const blob = base64ToBlob(cs.blob_data);
         const coverUrl = cs.cover_data ? `data:image/jpeg;base64,${cs.cover_data}` : null;
         const newSong = {
@@ -401,48 +408,43 @@ async function pullCloudToLocal() {
         };
         await saveSongToLocal(newSong);
         addedCount++;
-      }
+      } catch(e) { console.error('下載歌曲失敗:', cs.id, e); }
     }
-    
-    // 4. 刪除本地中雲端已不存在的歌曲（僅限目前使用者上傳的，避免誤刪他人歌曲）
-    const toDelete = localSongs.filter(l => !cloudIds.has(l.id) && l.uploader === currentUser);
-    for (const song of toDelete) {
-      // 如果這首歌正在播放，先停止
-      if (globalSongs[currentSongIndex]?.id === song.id) {
-        audio.pause();
-        currentSongIndex = -1;
-        playPauseBtn.innerText = '▶️';
-        if(rotateEnabled) playerCover.classList.remove('rotating');
-      }
-      await deleteSongFromLocal(song.id);
-      deletedCount++;
-    }
-    
-    // 5. 同步更新喜愛與歷史記錄（移除已刪除歌曲的 ID）
-    const meta = await getUserMeta();
-    let updatedLiked = meta.liked.filter(id => cloudIds.has(id));
-    let updatedHistory = meta.history.filter(h => cloudIds.has(h.id));
-    if (updatedLiked.length !== meta.liked.length || updatedHistory.length !== meta.history.length) {
-      await saveUserMeta({ liked: updatedLiked, history: updatedHistory, settings: meta.settings });
-      likedSongs = updatedLiked;
-      playHistory = updatedHistory;
-    }
-    
-    // 6. 重新載入 UI
-    if (addedCount > 0 || deletedCount > 0) {
-      await loadLocalAndRender();
-    }
-    
-    let msg = `✅ 同步完成`;
-    if (addedCount > 0) msg += `，新增 ${addedCount} 首`;
-    if (deletedCount > 0) msg += `，清理 ${deletedCount} 首已刪除歌曲`;
-    setSyncStatus(msg, false);
-    if (deletedCount > 0) showToast(`已從本地移除 ${deletedCount} 首雲端已刪除的歌曲`);
-    await updateCloudStorageDisplay();
-  } catch(e) {
-    console.error(e);
-    setSyncStatus('❌ 同步失敗，檢查網路後點擊重試', false);
   }
+  
+  // 刪除本地中雲端已不存在的歌曲（僅限目前使用者上傳）
+  const toDelete = localSongs.filter(l => !cloudIds.has(l.id) && l.uploader === currentUser);
+  for (const song of toDelete) {
+    if (globalSongs[currentSongIndex]?.id === song.id) {
+      audio.pause();
+      currentSongIndex = -1;
+      playPauseBtn.innerText = '▶️';
+      if(rotateEnabled) playerCover.classList.remove('rotating');
+    }
+    await deleteSongFromLocal(song.id);
+    deletedCount++;
+  }
+  
+  // 同步清理喜愛與歷史記錄中無效的 ID
+  const meta = await getUserMeta();
+  let updatedLiked = meta.liked.filter(id => cloudIds.has(id));
+  let updatedHistory = meta.history.filter(h => cloudIds.has(h.id));
+  if (updatedLiked.length !== meta.liked.length || updatedHistory.length !== meta.history.length) {
+    await saveUserMeta({ liked: updatedLiked, history: updatedHistory, settings: meta.settings });
+    likedSongs = updatedLiked;
+    playHistory = updatedHistory;
+  }
+  
+  if (addedCount > 0 || deletedCount > 0) {
+    await loadLocalAndRender();
+  }
+  
+  let msg = `✅ 同步完成`;
+  if (addedCount > 0) msg += `，新增 ${addedCount} 首`;
+  if (deletedCount > 0) msg += `，清理 ${deletedCount} 首已刪除歌曲`;
+  setSyncStatus(msg, false);
+  if (deletedCount > 0) showToast(`已從本地移除 ${deletedCount} 首雲端已刪除的歌曲`);
+  await updateCloudStorageDisplay();
 }
 
 async function loadLocalAndRender() {
@@ -653,17 +655,18 @@ async function runDiagnostics() {
     });
     if (!testRes.ok) throw new Error(`HTTP ${testRes.status}: ${await testRes.text()}`);
     const data = await testRes.json();
-    let msg = `✅ 連線成功，目前雲端歌曲數：${data.length}`;
+    let msg = `✅ 連線成功，目前雲端歌曲數：${data.length}\n環境：${isPWA ? 'PWA 模式' : '一般網頁'}`;
     if (data.length > 0) {
       const sample = data[0];
       msg += `\n範例欄位：${Object.keys(sample).join(', ')}`;
     }
     alert(msg);
   } catch(e) {
-    alert(`❌ 診斷失敗：${e.message}\n請確認 Supabase URL 與 Key 正確，且資料表 "songs" 存在。`);
+    alert(`❌ 診斷失敗：${e.message}\n請確認網路與 Supabase 設定。`);
   }
 }
 
+// 事件綁定
 document.getElementById('uploadArea').onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = async (e) => {
   const file = e.target.files[0]; if(!file) return;
