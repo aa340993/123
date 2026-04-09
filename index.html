@@ -60,7 +60,6 @@ body {
   padding-top: var(--safe-top);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
-  /* 底部 padding 只加 safe-bottom（非 PWA 才生效，見下方 media query） */
   padding-bottom: 0;
 }
 
@@ -97,14 +96,13 @@ body {
   padding:16px 16px 0;
   max-width:700px;
   margin:0 auto;
-  /* PWA 模式：底部只留播放器高度約 74px，不加 safe-bottom */
-  padding-bottom: 74px;
+  padding-bottom: 80px;
 }
 
 /* 非 PWA（一般瀏覽器）才加 safe-bottom */
 @media not all and (display-mode: standalone) {
   .main-container {
-    padding-bottom: calc(90px + var(--safe-bottom));
+    padding-bottom: calc(80px + var(--safe-bottom));
   }
 }
 
@@ -156,13 +154,13 @@ body {
   background:var(--player-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  /* PWA 模式：不加 safe-bottom，只有正常 padding */
-  padding:12px 16px 12px;
+  padding:12px 16px;
+  padding-left: calc(16px + var(--safe-left));
+  padding-right: calc(16px + var(--safe-right));
+  padding-bottom: max(12px, var(--safe-bottom));
   display:flex;align-items:center;gap:12px;
   z-index:999;
   border-top:1px solid var(--border-color);
-  padding-left: calc(16px + var(--safe-left));
-  padding-right: calc(16px + var(--safe-right));
 }
 
 /* 非 PWA 才加 safe-bottom */
@@ -285,7 +283,7 @@ body {
   <div class="upload-area" id="uploadArea">
     <div class="upload-icon">🌷📤</div>
     <div class="upload-text">點擊上傳 MP3</div>
-    <div class="upload-sub">單一檔案 · 上限20MB · 可選封面</div>
+    <div class="upload-sub">單一檔案 · 上限10MB · 可選封面</div>
     <input type="file" id="file-input" accept="audio/mp3,audio/mpeg">
     <input type="file" id="cover-input" accept="image/jpeg,image/png,image/gif">
   </div>
@@ -374,7 +372,7 @@ if (isIOS && !isStandalone) {
 }
 
 let heartEnabled=true,hoverEnabled=true,autoNextEnabled=true,fadeEnabled=true,saveProgressEnabled=true;
-const MAX_FILE_SIZE=20*1024*1024,TOTAL_CLOUD_LIMIT=1024*1024*1024;
+const MAX_FILE_SIZE=10*1024*1024,TOTAL_CLOUD_LIMIT=1024*1024*1024;
 let totalUsedBytes=0;
 
 function createHeart(x,y){if(!heartEnabled)return;const h=document.createElement('div');h.className='heart';h.innerText=['💖','🌸','💓','💕'][Math.floor(Math.random()*4)];h.style.cssText='left:'+x+'px;top:'+y+'px;color:#ff69b4;font-size:'+(Math.random()*12+12)+'px;';document.body.appendChild(h);setTimeout(()=>h.remove(),1000);}
@@ -555,7 +553,7 @@ document.getElementById('uploadArea').onclick=()=>document.getElementById('file-
 document.getElementById('file-input').onchange=async(e)=>{
   if(isGuest){alert('訪客無法上傳');return;}
   const file=e.target.files[0];if(!file)return;
-  if(file.size>MAX_FILE_SIZE){alert('檔案超過20MB，無法上傳！');e.target.value='';return;}
+  if(file.size>MAX_FILE_SIZE){alert('檔案超過10MB，無法上傳！');e.target.value='';return;}
   const coverFile=document.getElementById('cover-input').files[0];
   const coverB64=coverFile?await blobToBase64(coverFile):null;
   document.getElementById('syncStatus').innerText='📤 上傳中...';
